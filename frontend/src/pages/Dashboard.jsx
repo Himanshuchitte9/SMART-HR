@@ -19,23 +19,23 @@ const Dashboard = () => {
                     <span className="role-badge">{user?.role}</span>
                 </div>
                 <nav className="sidebar-nav">
-                    <a href="#" className="nav-item active">
+                    <a href="#" className="nav-item active" onClick={() => navigate('/dashboard')}>
                         <span>📊</span> Dashboard
                     </a>
                     {user?.role === 'OWNER' && (
                         <>
-                            <a href="#" className="nav-item">
+                            <a href="#" className="nav-item" onClick={() => navigate('/institutes')}>
                                 <span>🏢</span> Institutes
                             </a>
-                            <a href="#" className="nav-item">
+                            <a href="#" className="nav-item" onClick={() => navigate('/employees')}>
                                 <span>👥</span> Employees
                             </a>
-                            <a href="#" className="nav-item">
+                            <a href="#" className="nav-item" onClick={() => navigate('/roles')}>
                                 <span>🌳</span> Org Chart
                             </a>
                         </>
                     )}
-                    <a href="#" className="nav-item">
+                    <a href="#" className="nav-item" onClick={() => navigate('/profile')}>
                         <span>👤</span> Profile
                     </a>
                 </nav>
@@ -78,12 +78,22 @@ const Dashboard = () => {
                             <div className="action-card">
                                 <h3>🏢 Create Institute</h3>
                                 <p>Set up your school, college, or organization</p>
-                                <button className="action-btn">Get Started</button>
+                                <button
+                                    className="action-btn"
+                                    onClick={() => navigate('/institutes')}
+                                >
+                                    Get Started
+                                </button>
                             </div>
                             <div className="action-card">
                                 <h3>🌳 Build Hierarchy</h3>
                                 <p>Define roles and organizational structure</p>
-                                <button className="action-btn">Configure</button>
+                                <button
+                                    className="action-btn"
+                                    onClick={() => navigate('/roles')}
+                                >
+                                    Configure
+                                </button>
                             </div>
                         </div>
                     )}
