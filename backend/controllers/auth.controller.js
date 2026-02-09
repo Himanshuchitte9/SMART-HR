@@ -76,4 +76,51 @@ const generateToken = (id) => {
     });
 };
 
-export { registerUser, loginUser };
+const updateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id; // From auth middleware
+        const { name, mobile, gender, address, qualification, experience_years } = req.body;
+
+        // Build update object
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (mobile) updateData.mobile = mobile;
+        if (gender) updateData.gender = gender;
+        if (address) updateData.address = address;
+        if (qualification) updateData.qualification = qualification;
+        if (experience_years) updateData.experience_years = experience_years;
+
+        // Add profile picture if uploaded
+        if (req.file) {
+            updateData.profilePicture = `/uploads/profiles/${req.file.filename}`;
+        }
+
+        // Update user
+        const updatedUser = await User.update(userId, updateData);
+
+        if (updatedUser) {
+            res.json({
+                message: 'Profile updated successfully',
+                user: {
+                    _id: updatedUser.id || updatedUser._id,
+                    name: updatedUser.name,
+                    email: updatedUser.email,
+                    mobile: updatedUser.mobile,
+                    gender: updatedUser.gender,
+                    address: updatedUser.address,
+                    qualification: updatedUser.qualification,
+                    experience_years: updatedUser.experience_years,
+                    profilePicture: updatedUser.profilePicture,
+                    role: updatedUser.purpose
+                }
+            });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export { registerUser, loginUser, updateProfile };

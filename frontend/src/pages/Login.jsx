@@ -25,9 +25,15 @@ const Login = () => {
 
         try {
             const response = await authAPI.login(formData);
-            const { token, ...userData } = response.data;
-            login(userData, token);
-            navigate('/dashboard');
+            const { token, role, ...userData } = response.data;
+            login({ ...userData, role }, token);
+
+            // Redirect based on role
+            if (role === 'SUPERADMIN') {
+                navigate('/admin');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
         } finally {

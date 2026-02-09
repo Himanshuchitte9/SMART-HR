@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     address: String,
     qualification: String,
     experience_years: Number,
+    profilePicture: String,
     purpose: { type: String, enum: ['OWNER', 'EMPLOYEE', 'SUPERADMIN'] },
     status: { type: String, default: 'ACTIVE' },
     created_at: { type: Date, default: Date.now }
@@ -56,6 +57,20 @@ const User = {
             return res.rows[0];
         } else {
             return await MongoUser.findById(id);
+        }
+    },
+
+    update: async (id, updateData) => {
+        if (getDBType() === 'PG') {
+            const fields = Object.keys(updateData);
+            const values = Object.values(updateData);
+            const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(', ');
+
+            const text = `UPDATE users SET ${setClause} WHERE id = $1 RETURNING *`;
+            const res = await query(text, [id, ...values]);
+            return res.rows[0];
+        } else {
+            return await MongoUser.findByIdAndUpdate(id, updateData, { new: true });
         }
     }
 };

@@ -13,6 +13,9 @@ import authRoutes from './routes/auth.routes.js';
 app.use(express.json());
 app.use(cors());
 
+// Serve uploaded files statically
+app.use('/uploads', express.static('uploads'));
+
 import instituteRoutes from './routes/institute.routes.js';
 
 import roleRoutes from './routes/role.routes.js';
