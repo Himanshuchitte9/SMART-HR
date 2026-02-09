@@ -1,5 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import AttendanceWidget from '../components/AttendanceWidget';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -35,6 +36,20 @@ const Dashboard = () => {
                             </a>
                         </>
                     )}
+                    <a href="#" className="nav-item" onClick={() => navigate('/attendance-history')}>
+                        <span>⏱️</span> Attendance
+                    </a>
+                    <a href="#" className="nav-item" onClick={() => navigate('/apply-leave')}>
+                        <span>📝</span> Apply Leave
+                    </a>
+                    <a href="#" className="nav-item" onClick={() => navigate('/leave-management')}>
+                        <span>📅</span> My Leaves
+                    </a>
+                    {user?.role === 'OWNER' && (
+                        <a href="#" className="nav-item" onClick={() => navigate('/leave-approval')}>
+                            <span>✅</span> Leave Approvals
+                        </a>
+                    )}
                     <a href="#" className="nav-item" onClick={() => navigate('/profile')}>
                         <span>👤</span> Profile
                     </a>
@@ -49,6 +64,9 @@ const Dashboard = () => {
                     <p>Email: {user?.email}</p>
                 </header>
                 <div className="dashboard-grid">
+                    <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+                        <AttendanceWidget />
+                    </div>
                     <div className="stat-card">
                         <h3>Role</h3>
                         <p className="stat-value">{user?.role}</p>

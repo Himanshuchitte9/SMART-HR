@@ -7,8 +7,12 @@ import Dashboard from './pages/Dashboard';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import Institutes from './pages/Institutes';
 import Roles from './pages/Roles';
+import AttendanceHistory from './pages/AttendanceHistory';
 import Employees from './pages/Employees';
 import Profile from './pages/Profile';
+import ApplyLeave from './pages/ApplyLeave';
+import LeaveManagement from './pages/LeaveManagement';
+import LeaveApproval from './pages/LeaveApproval';
 
 function App() {
   return (
@@ -62,6 +66,38 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/attendance-history"
+            element={
+              <ProtectedRoute>
+                <AttendanceHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/apply-leave"
+            element={
+              <ProtectedRoute>
+                <ApplyLeave />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leave-management"
+            element={
+              <ProtectedRoute>
+                <LeaveManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leave-approval"
+            element={
+              <ProtectedRoute>
+                <LeaveApproval />
               </ProtectedRoute>
             }
           />

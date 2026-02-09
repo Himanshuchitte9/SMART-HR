@@ -1,0 +1,88 @@
+.apply-leave-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.apply-leave-container h2 {
+    margin-bottom: 1.5rem;
+    color: #1a1a2e;
+}
+
+.leave-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.leave-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.leave-form input,
+.leave-form select,
+.leave-form textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.leave-form input:focus,
+.leave-form select:focus,
+.leave-form textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.success-msg {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #28a745;
+}
+
+.error-msg {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #dc3545;
+}

@@ -1,0 +1,73 @@
+.attendance-widget {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.attendance-widget h3 {
+    margin: 0 0 1rem 0;
+    color: #1a1a2e;
+}
+
+.current-time {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #667eea;
+    font-family: monospace;
+    margin-bottom: 0.2rem;
+}
+
+.current-date {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.clock-btn {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.clock-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.clock-btn:hover:not(:disabled) {
+    transform: scale(1.02);
+}
+
+.clock-in {
+    background: #28a745;
+    color: white;
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+}
+
+.clock-out {
+    background: #dc3545;
+    color: white;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+.status-active p,
+.status-completed p {
+    margin: 0.5rem 0;
+    font-weight: 500;
+    color: #333;
+}
+
+.status-completed {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}

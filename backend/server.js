@@ -19,10 +19,16 @@ app.use('/uploads', express.static('uploads'));
 import instituteRoutes from './routes/institute.routes.js';
 
 import roleRoutes from './routes/role.routes.js';
+import attendanceRoutes from './routes/attendance.routes.js';
+import leaveRoutes from './routes/leave.routes.js';
+import payrollRoutes from './routes/payroll.routes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/institutes', instituteRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/leave', leaveRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
