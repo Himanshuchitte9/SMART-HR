@@ -1,15 +1,47 @@
 .apply-leave-container {
-    max-width: 700px;
-    margin: 0 auto;
     padding: 2rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: center;
+    background: #f8f9fa;
+    min-height: 100vh;
 }
 
-.apply-leave-container h2 {
-    margin-bottom: 1.5rem;
+.apply-card {
+    background: white;
+    width: 100%;
+    max-width: 600px;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    height: fit-content;
+}
+
+.apply-card h2 {
+    margin-top: 0;
+    margin-bottom: 2rem;
     color: #1a1a2e;
+    text-align: center;
+}
+
+.success-msg,
+.error-msg {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.success-msg {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error-msg {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
 .leave-form .form-group {
@@ -19,16 +51,16 @@
 .leave-form label {
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 600;
-    color: #333;
+    font-weight: 500;
+    color: #495057;
 }
 
 .leave-form input,
 .leave-form select,
 .leave-form textarea {
     width: 100%;
-    padding: 0.8rem;
-    border: 2px solid #e0e0e0;
+    padding: 0.9rem;
+    border: 2px solid #e9ecef;
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s;
@@ -44,7 +76,7 @@
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .submit-btn {
@@ -54,35 +86,20 @@
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 0.5rem;
 }
 
-.submit-btn:hover:not(:disabled) {
+.submit-btn:hover {
     transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
 .submit-btn:disabled {
-    opacity: 0.6;
+    background: #adb5bd;
+    transform: none;
     cursor: not-allowed;
-}
-
-.success-msg {
-    background: #d4edda;
-    color: #155724;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    border-left: 4px solid #28a745;
-}
-
-.error-msg {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    border-left: 4px solid #dc3545;
 }

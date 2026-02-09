@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AttendanceWidget from '../components/AttendanceWidget';
+import NoticeBoard from '../components/NoticeBoard';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -45,6 +46,15 @@ const Dashboard = () => {
                     <a href="#" className="nav-item" onClick={() => navigate('/leave-management')}>
                         <span>📅</span> My Leaves
                     </a>
+                    <a href="#" className="nav-item" onClick={() => navigate('/documents')}>
+                        <span>📂</span> Documents
+                    </a>
+                    <a href="#" className="nav-item" onClick={() => navigate('/announcements')}>
+                        <span>📢</span> {user?.role === 'OWNER' ? 'Manage Notices' : 'Notices'}
+                    </a>
+                    <a href="#" className="nav-item" onClick={() => navigate('/tasks')}>
+                        <span>🎯</span> Tasks
+                    </a>
                     {user?.role === 'OWNER' && (
                         <a href="#" className="nav-item" onClick={() => navigate('/leave-approval')}>
                             <span>✅</span> Leave Approvals
@@ -64,8 +74,11 @@ const Dashboard = () => {
                     <p>Email: {user?.email}</p>
                 </header>
                 <div className="dashboard-grid">
-                    <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+                    <div style={{ marginBottom: '1rem' }}>
                         <AttendanceWidget />
+                    </div>
+                    <div style={{ marginBottom: '1rem' }}>
+                        <NoticeBoard />
                     </div>
                     <div className="stat-card">
                         <h3>Role</h3>

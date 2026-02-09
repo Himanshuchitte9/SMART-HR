@@ -1,0 +1,105 @@
+.tasks-container {
+    padding: 2rem;
+}
+
+.tasks-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.create-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.task-form-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.task-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-top: 4px solid #ddd;
+    display: flex;
+    flex-direction: column;
+}
+
+.task-card.high {
+    border-top-color: #dc3545;
+}
+
+.task-card.medium {
+    border-top-color: #ffc107;
+}
+
+.task-card.low {
+    border-top-color: #28a745;
+}
+
+.task-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.task-top h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.status-badge.todo {
+    background: #eee;
+    color: #333;
+}
+
+.status-badge.in_progress {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-badge.done {
+    background: #d4edda;
+    color: #155724;
+}
+
+.task-meta {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.status-select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}

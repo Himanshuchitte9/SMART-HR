@@ -13,6 +13,9 @@ import Profile from './pages/Profile';
 import ApplyLeave from './pages/ApplyLeave';
 import LeaveManagement from './pages/LeaveManagement';
 import LeaveApproval from './pages/LeaveApproval';
+import Documents from './pages/Documents';
+import Announcements from './pages/Announcements';
+import Tasks from './pages/Tasks';
 
 function App() {
   return (
@@ -98,6 +101,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <LeaveApproval />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/documents"
+            element={
+              <ProtectedRoute>
+                <Documents />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/announcements"
+            element={
+              <ProtectedRoute>
+                <Announcements />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <ProtectedRoute>
+                <Tasks />
               </ProtectedRoute>
             }
           />

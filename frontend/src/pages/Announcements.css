@@ -1,0 +1,95 @@
+.announcements-container {
+    padding: 2rem;
+}
+
+.create-announcement {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.create-announcement h3 {
+    margin-top: 0;
+    color: #1a1a2e;
+}
+
+.create-announcement button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.notices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notice-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 5px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.notice-item.low {
+    border-left-color: #28a745;
+}
+
+.notice-item.medium {
+    border-left-color: #ffc107;
+}
+
+.notice-item.high {
+    border-left-color: #fd7e14;
+}
+
+.notice-item.urgent {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+}
+
+.notice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.notice-header h4 {
+    margin: 0;
+    color: #333;
+}
+
+.priority-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    background: #eee;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.notice-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    text-decoration: underline;
+}

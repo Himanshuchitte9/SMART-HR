@@ -1,0 +1,126 @@
+.documents-container {
+    padding: 2rem;
+}
+
+.documents-container h2 {
+    margin-bottom: 2rem;
+    color: #1a1a2e;
+}
+
+.upload-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.upload-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.upload-form .form-group {
+    margin-bottom: 0;
+}
+
+.upload-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.upload-form input,
+.upload-form select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.upload-form button {
+    padding: 0.8rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.upload-form button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.doc-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-left: 5px solid #ddd;
+}
+
+.doc-card.verified {
+    border-left-color: #28a745;
+}
+
+.doc-icon {
+    font-size: 2.5rem;
+}
+
+.doc-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.doc-info p {
+    margin: 0.2rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.doc-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.view-btn,
+.verify-btn,
+.delete-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+}
+
+.view-btn {
+    background: #e9ecef;
+    color: #333;
+}
+
+.verify-btn {
+    background: #d4edda;
+    color: #155724;
+}
+
+.delete-btn {
+    background: #f8d7da;
+    color: #721c24;
+}

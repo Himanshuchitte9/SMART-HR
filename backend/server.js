@@ -22,6 +22,9 @@ import roleRoutes from './routes/role.routes.js';
 import attendanceRoutes from './routes/attendance.routes.js';
 import leaveRoutes from './routes/leave.routes.js';
 import payrollRoutes from './routes/payroll.routes.js';
+import documentRoutes from './routes/document.routes.js';
+import announcementRoutes from './routes/announcement.routes.js';
+import taskRoutes from './routes/task.routes.js';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/institutes', instituteRoutes);
@@ -29,6 +32,9 @@ app.use('/api/roles', roleRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/leave', leaveRoutes);
 app.use('/api/payroll', payrollRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
