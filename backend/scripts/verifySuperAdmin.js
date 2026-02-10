@@ -1,6 +1,13 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smarthr_db';
 
@@ -21,7 +28,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-async function checkAndFixAdmin() {
+async function verifySuperAdmin() {
     try {
         console.log('🔗 Connecting to MongoDB...');
         await mongoose.connect(MONGO_URI);
@@ -33,7 +40,7 @@ async function checkAndFixAdmin() {
         const admin = await User.findOne({ email });
 
         if (admin) {
-            console.log('✅ Admin found in database!');
+            console.log('✅ Super Admin found in database!');
             console.log('ID:', admin._id);
             console.log('Name:', admin.name);
             console.log('Email:', admin.email);
@@ -43,47 +50,25 @@ async function checkAndFixAdmin() {
             const isMatch = await bcrypt.compare('Admin@123', admin.password);
             console.log('\n🔐 Password Test:', isMatch ? '✅ CORRECT' : '❌ WRONG');
 
-            if (!isMatch) {
-                console.log('\n⚠️  Password mismatch! Fixing...');
-                const hashedPassword = await bcrypt.hash('Admin@123', 10);
-                admin.password = hashedPassword;
-                await admin.save();
-                console.log('✅ Password updated!');
+            if (isMatch) {
+                console.log('\n✅ Credentials verified successfully!');
+                console.log('\n📧 Login Credentials:');
+                console.log('Email: vaibhavmishra@gmail.com');
+                console.log('Password: Admin@123');
+                console.log('\nYou can now login at http://localhost:3000');
             }
         } else {
-            console.log('❌ Admin NOT found! Creating...\n');
-
-            const hashedPassword = await bcrypt.hash('Admin@123', 10);
-
-            const newAdmin = new User({
-                _id: 'super-admin-001',
-                name: 'Super Admin',
-                email: email,
-                mobile: '9999999999',
-                password: hashedPassword,
-                gender: 'MALE',
-                address: 'System',
-                qualification: 'Administrator',
-                experience_years: 10,
-                purpose: 'SUPERADMIN',
-                status: 'ACTIVE'
-            });
-
-            await newAdmin.save();
-            console.log('✅ Super Admin created!');
+            console.log('❌ Super Admin NOT found with email:', email);
         }
-
-        console.log('\n📧 Login Credentials:');
-        console.log('Email: vaibhavmishra@gmail.com');
-        console.log('Password: Admin@123');
 
         await mongoose.connection.close();
         console.log('\n✅ Done!');
 
     } catch (error) {
         console.error('❌ Error:', error.message);
+        await mongoose.connection.close();
         process.exit(1);
     }
 }
 
-checkAndFixAdmin();
+verifySuperAdmin();

@@ -14,8 +14,8 @@ let isMongoConnected = false;
 const PG_CONFIG = {
     user: process.env.PG_USER || 'postgres',
     host: process.env.PG_HOST || 'localhost',
-    database: process.env.PG_DB || 'smarthr',
-    password: process.env.PG_PASSWORD || 'password',
+    database: process.env.PG_DB || 'SMARTHR',
+    password: process.env.PG_PASSWORD || 'VAIBHAV@22',
     port: process.env.PG_PORT || 5432,
 };
 
