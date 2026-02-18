@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const notificationSchema = new mongoose.Schema({
     userId: {
@@ -26,4 +27,7 @@ const notificationSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+notificationSchema.plugin(attachStructuredMirror('Notification'));
+
 module.exports = mongoose.model('Notification', notificationSchema);
+

@@ -6,7 +6,6 @@ import SuperAdminLayout from './layouts/SuperAdminLayout';
 import OwnerLayout from './layouts/OwnerLayout';
 import SubAdminLayout from './layouts/SubAdminLayout';
 import UserLayout from './layouts/UserLayout';
-import EmployeeLayout from './layouts/EmployeeLayout';
 
 import HomePage from './pages/public/HomePage';
 import LoginPage from './pages/auth/LoginPage';
@@ -37,19 +36,25 @@ import AIWidget from './components/shared/AIWidget';
 const getPanelHome = (panel) => {
   if (panel === 'SUPERADMIN') return '/superadmin/dashboard';
   if (panel === 'OWNER') return '/owner/dashboard';
-  if (panel === 'SUBADMIN') return '/subadmin/dashboard';
-  if (panel === 'EMPLOYEE') return '/employee/dashboard';
+  if (panel === 'SUBADMIN' || panel === 'EMPLOYEE') return '/subadmin/dashboard';
   return '/user/dashboard';
 };
 
+const normalizePanel = (panel) => {
+  const p = String(panel || '').trim().toUpperCase();
+  if (!p) return null;
+  if (p === 'EMPLOYEE') return 'SUBADMIN';
+  return p;
+};
+
 const inferPanel = ({ panel, user, organization }) => {
-  if (panel) return panel;
+  const explicitPanel = normalizePanel(panel);
+  if (explicitPanel) return explicitPanel;
   if (user?.isSuperAdmin) return 'SUPERADMIN';
   const role = String(organization?.role || '').trim().toLowerCase();
   if (role === 'owner') return 'OWNER';
-  if (['admin', 'hr manager', 'subadmin', 'manager'].includes(role)) return 'SUBADMIN';
-  if (role) return 'EMPLOYEE';
-  if (organization?.id || organization?._id) return 'EMPLOYEE';
+  if (role) return 'SUBADMIN';
+  if (organization?.id || organization?._id) return 'SUBADMIN';
   return 'USER';
 };
 
@@ -128,10 +133,9 @@ function App() {
         >
           <Route path="dashboard" element={<DashboardHome />} />
           <Route path="profile" element={<UserProfile />} />
-          <Route path="employees" element={<EmployeeList />} />
-          <Route path="recruitment" element={<RecruitmentDashboard />} />
-          <Route path="org-chart" element={<OrgChartPage />} />
-          <Route path="performance" element={<PerformancePage />} />
+          <Route path="attendance" element={<AttendancePage />} />
+          <Route path="leaves" element={<LeavePage />} />
+          <Route path="documents" element={<DocumentsPage />} />
           <Route path="feed" element={<FeedPage />} />
           <Route path="network" element={<NetworkPage />} />
           <Route path="chat" element={<ChatPage />} />
@@ -153,21 +157,7 @@ function App() {
           <Route path="settings" element={<SettingsPage />} />
         </Route>
 
-        <Route
-          path="/employee"
-          element={<PanelRoute allowedPanels={['EMPLOYEE']}><EmployeeLayout /></PanelRoute>}
-        >
-          <Route path="dashboard" element={<DashboardHome />} />
-          <Route path="profile" element={<UserProfile />} />
-          <Route path="attendance" element={<AttendancePage />} />
-          <Route path="leaves" element={<LeavePage />} />
-          <Route path="documents" element={<DocumentsPage />} />
-          <Route path="feed" element={<FeedPage />} />
-          <Route path="network" element={<NetworkPage />} />
-          <Route path="chat" element={<ChatPage />} />
-          <Route path="help" element={<HelpPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
+        <Route path="/employee/*" element={<Navigate to="/subadmin/dashboard" replace />} />
 
         <Route path="/dashboard" element={<PanelHomeRedirect />} />
         <Route path="/admin/dashboard" element={<Navigate to="/superadmin/dashboard" replace />} />

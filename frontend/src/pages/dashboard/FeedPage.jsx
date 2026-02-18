@@ -100,7 +100,7 @@ const FeedPage = () => {
                         <p className="flex items-center justify-between"><span className="text-muted-foreground">Panel</span><span className="font-semibold">{panel || 'USER'}</span></p>
                         <p className="flex items-center justify-between"><span className="text-muted-foreground">Profile Score</span><span className="font-semibold">{user?.professional?.profileScore || 0}</span></p>
                     </div>
-                    <Link to={panel === 'OWNER' ? '/owner/profile' : panel === 'SUBADMIN' ? '/subadmin/profile' : panel === 'EMPLOYEE' ? '/employee/profile' : panel === 'SUPERADMIN' ? '/superadmin/settings' : '/user/profile'}>
+                    <Link to={panel === 'OWNER' ? '/owner/profile' : panel === 'SUBADMIN' ? '/subadmin/profile' : panel === 'EMPLOYEE' ? '/subadmin/profile' : panel === 'SUPERADMIN' ? '/superadmin/settings' : '/user/profile'}>
                         <Button variant="outline" className="mt-4 w-full">Open Profile</Button>
                     </Link>
                 </div>

@@ -4,7 +4,7 @@ import { Input } from '../../components/ui/Input';
 import { Label } from '../../components/ui/Label';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import { Building2, Save, Loader2, CreditCard, ReceiptText } from 'lucide-react';
+import { Building2, Save, Loader2, CreditCard, ReceiptText, Network } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 const plans = [
@@ -12,6 +12,76 @@ const plans = [
     { id: 'PRO', title: 'Pro', details: 'Up to 50 employees' },
     { id: 'ENTERPRISE', title: 'Enterprise', details: 'Unlimited scale' },
 ];
+
+const DEFAULT_HIERARCHY_CONFIG = {
+    templates: [
+        {
+            type: 'CORPORATE_IT',
+            name: 'Corporate / IT Company',
+            levels: [
+                'Shareholders',
+                'Board of Directors',
+                'CEO',
+                'C-Level Executives (CTO, CFO, COO, CHRO)',
+                'Department Directors',
+                'Senior Managers',
+                'Managers',
+                'Team Leads',
+                'Senior Employees',
+                'Junior Employees / Interns',
+            ],
+            reportingExample: ['CEO', 'CTO', 'Engineering Director', 'Project Manager', 'Team Lead', 'Developers'],
+        },
+        {
+            type: 'SCHOOL_COLLEGE',
+            name: 'School / College',
+            levels: ['Trust / Chairman', 'Principal', 'Vice Principal', 'HOD', 'Teachers', 'Assistant Teachers'],
+            reportingExample: ['Principal', 'Administrative Officer', 'Clerks / Office Staff', 'Peon / Support Staff'],
+        },
+        {
+            type: 'HOSPITAL',
+            name: 'Hospital',
+            levels: ['Hospital Owner / Board', 'Medical Director', 'Department Heads', 'Senior Doctors', 'Junior Doctors', 'Nurses', 'Ward Staff'],
+            reportingExample: ['Hospital Director', 'Admin Manager', 'Reception / Billing Staff'],
+        },
+        {
+            type: 'MANUFACTURING_FACTORY',
+            name: 'Manufacturing / Factory',
+            levels: ['Owner / Board', 'Plant Head', 'Production Manager', 'Shift Supervisor', 'Line Incharge', 'Skilled Workers', 'Helpers / Contract Workers'],
+            reportingExample: ['Plant Head', 'Maintenance Manager', 'Engineers', 'Technicians'],
+        },
+        {
+            type: 'GOVERNMENT',
+            name: 'Government Organization',
+            levels: ['Ministry / Central Authority', 'Chairman / Secretary', 'Director', 'Joint Director', 'Section Officer', 'Clerk', 'Field Staff'],
+            reportingExample: ['Promotion flow usually follows seniority + grade model'],
+        },
+        {
+            type: 'RETAIL_CHAIN',
+            name: 'Retail Chain',
+            levels: ['Owner / Corporate Office', 'Regional Manager', 'Area Manager', 'Store Manager', 'Assistant Store Manager', 'Cashier / Sales Executive', 'Helper / Inventory Staff'],
+            reportingExample: ['Corporate Office', 'Regional Manager', 'Area Manager', 'Store Manager', 'Store Staff'],
+        },
+    ],
+    universalLevels: [
+        'Strategic Level (Decision Makers)',
+        'Managerial Level (Control & Supervision)',
+        'Operational Level (Execution)',
+    ],
+    matrixReportingEnabled: false,
+    visibilityPolicy: 'DOWNLINE_ONLY',
+    blockUpwardVisibility: true,
+};
+
+const EMPLOYEE_MANDATORY_FIELDS = ['Reporting Manager', 'Department', 'Designation', 'Role'];
+
+const normalizeHierarchyConfig = (raw) => ({
+    templates: Array.isArray(raw?.templates) && raw.templates.length ? raw.templates : DEFAULT_HIERARCHY_CONFIG.templates,
+    universalLevels: Array.isArray(raw?.universalLevels) && raw.universalLevels.length ? raw.universalLevels : DEFAULT_HIERARCHY_CONFIG.universalLevels,
+    matrixReportingEnabled: Boolean(raw?.matrixReportingEnabled),
+    visibilityPolicy: raw?.visibilityPolicy === 'ALL' ? 'ALL' : 'DOWNLINE_ONLY',
+    blockUpwardVisibility: raw?.blockUpwardVisibility !== false,
+});
 
 const OrganizationSettings = () => {
     const { organization, setOrganization } = useAuthStore();
@@ -24,6 +94,7 @@ const OrganizationSettings = () => {
     const [paymentTarget, setPaymentTarget] = useState('PRO');
     const [billingCycle, setBillingCycle] = useState('MONTHLY');
     const [history, setHistory] = useState([]);
+    const [hierarchyConfig, setHierarchyConfig] = useState(DEFAULT_HIERARCHY_CONFIG);
     const [paymentForm, setPaymentForm] = useState({
         cardHolder: '',
         cardNumber: '',
@@ -46,6 +117,7 @@ const OrganizationSettings = () => {
             setHistory(historyData || []);
             setValue('name', orgData.name);
             setValue('branding.primaryColor', orgData.settings?.branding?.primaryColor || '#000000');
+            setHierarchyConfig(normalizeHierarchyConfig(orgData.hierarchyConfig));
         } catch (error) {
             console.error('Failed to fetch org settings:', error);
             setMessage(error.response?.data?.message || 'Failed to load organization settings');
@@ -67,6 +139,7 @@ const OrganizationSettings = () => {
                 branding: {
                     primaryColor: data.branding.primaryColor,
                 },
+                hierarchyConfig,
             };
             const { data: updatedOrg } = await api.patch('/organization', payload);
             setOrganization(updatedOrg);
@@ -174,6 +247,90 @@ const OrganizationSettings = () => {
                             {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                             Save Changes
                         </Button>
+                    </div>
+                </div>
+
+                <div className="glass-card interactive-card p-6">
+                    <h3 className="font-semibold text-lg mb-1 flex items-center gap-2">
+                        <Network className="h-5 w-5 text-primary" />
+                        Organization Hierarchy & Reporting
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Ye configuration owner panel se control hoti hai. Employee upward hierarchy details nahi dekh paayega jab `Downline Only` active ho.
+                    </p>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {hierarchyConfig.templates.map((template) => (
+                            <div key={template.type} className="rounded-lg border bg-background/60 p-4">
+                                <h4 className="font-semibold">{template.name}</h4>
+                                <p className="text-xs text-muted-foreground mt-1">Top to Bottom</p>
+                                <div className="mt-2 text-sm space-y-1">
+                                    {template.levels?.map((level, idx) => (
+                                        <p key={`${template.type}-lvl-${idx}`}>
+                                            {idx + 1}. {level}
+                                        </p>
+                                    ))}
+                                </div>
+                                {Array.isArray(template.reportingExample) && template.reportingExample.length > 0 && (
+                                    <p className="mt-3 text-xs text-muted-foreground">
+                                        Reporting Example: {template.reportingExample.join(' -> ')}
+                                    </p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                        <div className="grid gap-1">
+                            <Label>Visibility Policy</Label>
+                            <select
+                                className="h-10 rounded-md border bg-background px-3 text-sm"
+                                value={hierarchyConfig.visibilityPolicy}
+                                onChange={(e) => setHierarchyConfig((prev) => ({ ...prev, visibilityPolicy: e.target.value }))}
+                            >
+                                <option value="DOWNLINE_ONLY">Downline Only (Recommended)</option>
+                                <option value="ALL">All Employees</option>
+                            </select>
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label>Reporting Mode</Label>
+                            <label className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={hierarchyConfig.blockUpwardVisibility}
+                                    onChange={(e) => setHierarchyConfig((prev) => ({ ...prev, blockUpwardVisibility: e.target.checked }))}
+                                />
+                                Block upward visibility
+                            </label>
+                            <label className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={hierarchyConfig.matrixReportingEnabled}
+                                    onChange={(e) => setHierarchyConfig((prev) => ({ ...prev, matrixReportingEnabled: e.target.checked }))}
+                                />
+                                Enable matrix reporting (multi-manager structure)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                        <div className="rounded-md border bg-background/60 p-3">
+                            <h5 className="font-medium text-sm">Universal Levels</h5>
+                            <div className="mt-2 text-sm space-y-1">
+                                {hierarchyConfig.universalLevels.map((level, idx) => (
+                                    <p key={`universal-${idx}`}>{idx + 1}. {level}</p>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="rounded-md border bg-background/60 p-3">
+                            <h5 className="font-medium text-sm">Mandatory Employee Mapping</h5>
+                            <div className="mt-2 text-sm space-y-1">
+                                {EMPLOYEE_MANDATORY_FIELDS.map((item) => (
+                                    <p key={item}>- {item}</p>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>

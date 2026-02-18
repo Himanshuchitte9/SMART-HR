@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const connectionSchema = new mongoose.Schema({
     requesterId: {
@@ -23,4 +24,7 @@ const connectionSchema = new mongoose.Schema({
 // Ensure unique connection pair
 connectionSchema.index({ requesterId: 1, recipientId: 1 }, { unique: true });
 
+connectionSchema.plugin(attachStructuredMirror('Connection'));
+
 module.exports = mongoose.model('Connection', connectionSchema);
+

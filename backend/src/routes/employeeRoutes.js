@@ -10,10 +10,10 @@ const router = express.Router();
 router.use(protect);
 router.use(requireTenant);
 
-// Only Owner and Managers/Admins can view/manage employees
-router.get('/', authorizeRoles('Owner', 'Admin', 'HR Manager'), getEmployees);
-router.post('/', authorizeRoles('Owner', 'Admin', 'HR Manager'), addEmployee);
-router.patch('/:id', authorizeRoles('Owner', 'Admin'), updateEmployee);
-router.patch('/:id/terminate', authorizeRoles('Owner', 'Admin'), terminateEmployee);
+// Any authenticated org member can list employees, but data is hierarchy-scoped in controller
+router.get('/', getEmployees);
+router.post('/', authorizeRoles('Owner'), addEmployee);
+router.patch('/:id', authorizeRoles('Owner'), updateEmployee);
+router.patch('/:id/terminate', authorizeRoles('Owner'), terminateEmployee);
 
 module.exports = router;

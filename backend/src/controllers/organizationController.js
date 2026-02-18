@@ -34,13 +34,14 @@ exports.updateOrganization = async (req, res) => {
             return res.status(400).json({ message: 'Organization context missing' });
         }
 
-        const { name, branding, modulesEnabled } = req.body;
+        const { name, branding, modulesEnabled, hierarchyConfig } = req.body;
 
         // Build update object
         let updateFields = {};
         if (name) updateFields.name = name;
         if (branding) updateFields['settings.branding'] = branding;
         if (modulesEnabled) updateFields['settings.modulesEnabled'] = modulesEnabled;
+        if (hierarchyConfig) updateFields.hierarchyConfig = hierarchyConfig;
 
         const org = await Organization.findByIdAndUpdate(
             req.organizationId,

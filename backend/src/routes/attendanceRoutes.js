@@ -14,6 +14,6 @@ router.post('/clock-out', clockOut);
 router.get('/me', getMyAttendance);
 
 // Manager/Admin routes
-router.get('/team', authorizeRoles('Owner', 'Admin', 'HR Manager'), getTeamAttendance);
+router.get('/team', authorizeRoles('Owner'), getTeamAttendance);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const settingsSchema = new mongoose.Schema({
     key: {
@@ -12,4 +13,7 @@ const settingsSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+settingsSchema.plugin(attachStructuredMirror('Settings'));
+
 module.exports = mongoose.model('Settings', settingsSchema);
+

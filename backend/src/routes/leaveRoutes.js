@@ -13,7 +13,7 @@ router.post('/', applyLeave);
 router.get('/me', getMyLeaves);
 
 // Manager/Admin routes
-router.get('/pending', authorizeRoles('Owner', 'Admin', 'HR Manager'), getPendingLeaves);
-router.patch('/:id/status', authorizeRoles('Owner', 'Admin', 'HR Manager'), updateLeaveStatus);
+router.get('/pending', authorizeRoles('Owner'), getPendingLeaves);
+router.patch('/:id/status', authorizeRoles('Owner'), updateLeaveStatus);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const leaveSchema = new mongoose.Schema({
     organizationId: {
@@ -42,4 +43,7 @@ const leaveSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+leaveSchema.plugin(attachStructuredMirror('Leave'));
+
 module.exports = mongoose.model('Leave', leaveSchema);
+

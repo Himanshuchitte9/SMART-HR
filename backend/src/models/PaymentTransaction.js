@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const paymentTransactionSchema = new mongoose.Schema({
     organizationId: {
@@ -61,4 +62,7 @@ const paymentTransactionSchema = new mongoose.Schema({
 
 paymentTransactionSchema.index({ organizationId: 1, createdAt: -1 });
 
+paymentTransactionSchema.plugin(attachStructuredMirror('PaymentTransaction'));
+
 module.exports = mongoose.model('PaymentTransaction', paymentTransactionSchema);
+

@@ -4,12 +4,11 @@ const Organization = require('../models/Organization');
 const EmploymentState = require('../models/EmploymentState');
 const Role = require('../models/Role');
 const AuditLog = require('../models/AuditLog');
+const OtpSession = require('../models/OtpSession');
 const LoginAudit = require('../models/postgres/LoginAudit');
 const { hashPassword, comparePassword, signAccessToken, signRefreshToken, verifyRefreshToken } = require('../utils/authUtils');
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
-const registerOtpSessions = new Map();
-const loginOtpSessions = new Map();
 
 const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,64}$/;
 const mobilePattern = /^\d{10,15}$/;
@@ -108,11 +107,7 @@ const getPanelDecision = ({ isSuperAdmin, employment }) => {
         return { panel: 'OWNER', redirectPath: '/owner/dashboard' };
     }
 
-    if (['admin', 'hr manager', 'subadmin', 'manager'].includes(role)) {
-        return { panel: 'SUBADMIN', redirectPath: '/subadmin/dashboard' };
-    }
-
-    return { panel: 'EMPLOYEE', redirectPath: '/employee/dashboard' };
+    return { panel: 'SUBADMIN', redirectPath: '/subadmin/dashboard' };
 };
 
 const ensureOwnerRole = async (organizationId) => {
@@ -159,9 +154,12 @@ exports.registerStart = async (req, res) => {
         const verificationId = makeSessionId();
         const emailOtp = generateOtp();
         const mobileOtp = generateOtp();
+        const passwordHash = await hashPassword(value.password);
 
-        registerOtpSessions.set(verificationId, {
-            data: {
+        await OtpSession.create({
+            sessionId: verificationId,
+            flow: 'REGISTER',
+            registerData: {
                 firstName: value.firstName,
                 middleName: value.middleName || '',
                 surname: value.surname,
@@ -169,12 +167,12 @@ exports.registerStart = async (req, res) => {
                 email,
                 mobile,
                 avatarUrl: value.avatarUrl || '',
-                password: value.password,
+                passwordHash,
             },
             emailOtp,
             mobileOtp,
             verified: false,
-            expiresAt: Date.now() + OTP_EXPIRY_MS,
+            expiresAt: new Date(Date.now() + OTP_EXPIRY_MS),
         });
 
         res.status(200).json({
@@ -189,24 +187,33 @@ exports.registerStart = async (req, res) => {
 };
 
 exports.registerVerify = async (req, res) => {
-    const { error, value } = registerVerifySchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
+    try {
+        const { error, value } = registerVerifySchema.validate(req.body);
+        if (error) return res.status(400).json({ message: error.details[0].message });
 
-    const session = registerOtpSessions.get(value.verificationId);
-    if (!session) return res.status(400).json({ message: 'Invalid verification session' });
-    if (Date.now() > session.expiresAt) {
-        registerOtpSessions.delete(value.verificationId);
-        return res.status(400).json({ message: 'OTP expired. Please restart registration.' });
+        const session = await OtpSession.findOne({
+            sessionId: value.verificationId,
+            flow: 'REGISTER',
+        });
+        if (!session) return res.status(400).json({ message: 'Invalid verification session' });
+
+        if (Date.now() > new Date(session.expiresAt).getTime()) {
+            await OtpSession.deleteOne({ _id: session._id });
+            return res.status(400).json({ message: 'OTP expired. Please restart registration.' });
+        }
+
+        if (session.emailOtp !== value.emailOtp || session.mobileOtp !== value.mobileOtp) {
+            return res.status(400).json({ message: 'Invalid OTP' });
+        }
+
+        session.verified = true;
+        await session.save();
+
+        res.json({ message: 'OTP verified successfully' });
+    } catch (error) {
+        console.error('registerVerify error', error);
+        res.status(500).json({ message: 'Server error' });
     }
-
-    if (session.emailOtp !== value.emailOtp || session.mobileOtp !== value.mobileOtp) {
-        return res.status(400).json({ message: 'Invalid OTP' });
-    }
-
-    session.verified = true;
-    registerOtpSessions.set(value.verificationId, session);
-
-    res.json({ message: 'OTP verified successfully' });
 };
 
 exports.registerComplete = async (req, res) => {
@@ -214,30 +221,36 @@ exports.registerComplete = async (req, res) => {
         const { error, value } = registerCompleteSchema.validate(req.body);
         if (error) return res.status(400).json({ message: error.details[0].message });
 
-        const session = registerOtpSessions.get(value.verificationId);
+        const session = await OtpSession.findOne({
+            sessionId: value.verificationId,
+            flow: 'REGISTER',
+        });
         if (!session) return res.status(400).json({ message: 'Invalid verification session' });
-        if (Date.now() > session.expiresAt) {
-            registerOtpSessions.delete(value.verificationId);
+        if (Date.now() > new Date(session.expiresAt).getTime()) {
+            await OtpSession.deleteOne({ _id: session._id });
             return res.status(400).json({ message: 'Session expired. Please restart registration.' });
         }
         if (!session.verified) return res.status(400).json({ message: 'Complete OTP verification first' });
 
-        const { firstName, middleName, surname, dateOfBirth, email, mobile, avatarUrl, password } = session.data;
+        const { firstName, middleName, surname, dateOfBirth, email, mobile, avatarUrl, passwordHash } = session.registerData || {};
         const ownerPlan = (value.preferredPlan || 'FREE').toUpperCase();
 
         const alreadyRegistered = await User.findOne({ $or: [{ email }, { mobile }] }).select('_id');
         if (alreadyRegistered) {
-            registerOtpSessions.delete(value.verificationId);
+            await OtpSession.deleteOne({ _id: session._id });
             return res.status(409).json({ message: 'This email/mobile is already registered. Please login.' });
         }
 
-        const hashedPassword = await hashPassword(password);
+        if (!passwordHash) {
+            await OtpSession.deleteOne({ _id: session._id });
+            return res.status(400).json({ message: 'Registration session invalid. Please restart registration.' });
+        }
 
         const user = await User.create({
             email,
             mobile,
             dateOfBirth,
-            passwordHash: hashedPassword,
+            passwordHash,
             profile: {
                 firstName,
                 middleName,
@@ -291,7 +304,7 @@ exports.registerComplete = async (req, res) => {
             });
         }
 
-        registerOtpSessions.delete(value.verificationId);
+        await OtpSession.deleteOne({ _id: session._id });
 
         res.status(201).json({
             message: 'Registration complete. Please login.',
@@ -330,10 +343,14 @@ exports.loginStart = async (req, res) => {
         const loginSessionId = makeSessionId();
         const emailOtp = generateOtp();
 
-        loginOtpSessions.set(loginSessionId, {
-            userId: String(user._id),
+        await OtpSession.create({
+            sessionId: loginSessionId,
+            flow: 'LOGIN',
+            loginData: {
+                userId: user._id,
+            },
             emailOtp,
-            expiresAt: Date.now() + OTP_EXPIRY_MS,
+            expiresAt: new Date(Date.now() + OTP_EXPIRY_MS),
         });
 
         res.json({
@@ -352,17 +369,20 @@ exports.loginVerify = async (req, res) => {
         const { error, value } = loginVerifySchema.validate(req.body);
         if (error) return res.status(400).json({ message: error.details[0].message });
 
-        const session = loginOtpSessions.get(value.loginSessionId);
+        const session = await OtpSession.findOne({
+            sessionId: value.loginSessionId,
+            flow: 'LOGIN',
+        });
         if (!session) return res.status(400).json({ message: 'Invalid login session' });
-        if (Date.now() > session.expiresAt) {
-            loginOtpSessions.delete(value.loginSessionId);
+        if (Date.now() > new Date(session.expiresAt).getTime()) {
+            await OtpSession.deleteOne({ _id: session._id });
             return res.status(400).json({ message: 'OTP expired. Please login again.' });
         }
         if (session.emailOtp !== value.emailOtp) {
             return res.status(400).json({ message: 'Invalid OTP' });
         }
 
-        const user = await User.findById(session.userId).select('+security.refreshTokenVersion');
+        const user = await User.findById(session.loginData?.userId).select('+security.refreshTokenVersion');
         if (!user) return res.status(401).json({ message: 'User no longer exists' });
 
         const activeEmployment = await EmploymentState.findOne({
@@ -414,7 +434,7 @@ exports.loginVerify = async (req, res) => {
             console.error('LoginAudit PG write failed', pgError.message);
         }
 
-        loginOtpSessions.delete(value.loginSessionId);
+        await OtpSession.deleteOne({ _id: session._id });
 
         res.json({
             accessToken,

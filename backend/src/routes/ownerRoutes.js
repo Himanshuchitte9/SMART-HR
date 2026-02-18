@@ -14,7 +14,7 @@ const router = express.Router();
 
 router.use(protect);
 router.use(requireTenant);
-router.use(authorizeRoles('Owner', 'Admin', 'HR Manager'));
+router.use(authorizeRoles('Owner'));
 
 router.get('/hiring-dashboard', getHiringDashboard);
 router.get('/org-chart', getOrganizationChart);

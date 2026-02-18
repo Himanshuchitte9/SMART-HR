@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const attendanceSchema = new mongoose.Schema({
     organizationId: {
@@ -39,4 +40,7 @@ const attendanceSchema = new mongoose.Schema({
 // Compound index to ensure one record per user per day
 attendanceSchema.index({ organizationId: 1, userId: 1, date: 1 }, { unique: true });
 
+attendanceSchema.plugin(attachStructuredMirror('Attendance'));
+
 module.exports = mongoose.model('Attendance', attendanceSchema);
+

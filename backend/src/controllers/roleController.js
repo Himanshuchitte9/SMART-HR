@@ -1,17 +1,13 @@
 const Role = require('../models/Role');
 
+const RESERVED_ROLE_NAMES = new Set(['owner', 'admin', 'superadmin']);
+
 // @desc    Get all roles for current organization
 // @route   GET /api/roles
 // @access  Private (Admin/Owner)
 exports.getRoles = async (req, res) => {
     try {
-        // Assume req.user.organizationId is set by middleware or query param for now
-        // For MVP, if SuperAdmin, get all? Or just return system roles + org roles
-
-        let query = { isSystem: true };
-        if (req.query.organizationId) {
-            query = { $or: [{ isSystem: true }, { organizationId: req.query.organizationId }] };
-        }
+        const query = { $or: [{ isSystem: true }, { organizationId: req.organizationId }] };
 
         const roles = await Role.find(query);
         res.json(roles);
@@ -25,15 +21,18 @@ exports.getRoles = async (req, res) => {
 // @access  Private (Admin/Owner)
 exports.createRole = async (req, res) => {
     try {
-        const { name, permissions, organizationId } = req.body;
+        const { name, permissions } = req.body;
 
         // Check format
         if (!name) return res.status(400).json({ message: 'Role name required' });
+        if (RESERVED_ROLE_NAMES.has(String(name).trim().toLowerCase())) {
+            return res.status(400).json({ message: `Role '${name}' is reserved and cannot be created manually` });
+        }
 
         const role = await Role.create({
             name,
             permissions,
-            organizationId, // Should come from context, but body for MVP flexibility
+            organizationId: req.organizationId,
             isSystem: false
         });
 

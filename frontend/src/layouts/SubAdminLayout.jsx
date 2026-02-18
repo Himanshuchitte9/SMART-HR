@@ -1,16 +1,15 @@
 import React from 'react';
 import {
-    LayoutDashboard, Users, BrainCircuit, Network, TrendingUp, Rss, User, Settings, LifeBuoy, MessageCircle,
+    LayoutDashboard, Clock, Calendar, FileText, Rss, User, Settings, LifeBuoy, MessageCircle, Users,
 } from 'lucide-react';
 import PanelShell from './PanelShell';
 
 const menuItems = [
     { label: 'Dashboard', path: '/subadmin/dashboard', icon: LayoutDashboard },
     { label: 'Profile', path: '/subadmin/profile', icon: User },
-    { label: 'Employees', path: '/subadmin/employees', icon: Users },
-    { label: 'Recruitment', path: '/subadmin/recruitment', icon: BrainCircuit },
-    { label: 'Org Chart', path: '/subadmin/org-chart', icon: Network },
-    { label: 'Performance', path: '/subadmin/performance', icon: TrendingUp },
+    { label: 'Attendance', path: '/subadmin/attendance', icon: Clock },
+    { label: 'Leaves', path: '/subadmin/leaves', icon: Calendar },
+    { label: 'Documents', path: '/subadmin/documents', icon: FileText },
     { label: 'Feed', path: '/subadmin/feed', icon: Rss },
     { label: 'Network', path: '/subadmin/network', icon: Users },
     { label: 'Chat', path: '/subadmin/chat', icon: MessageCircle },
@@ -20,9 +19,9 @@ const menuItems = [
 
 const SubAdminLayout = () => (
     <PanelShell
-        panelName="SubAdmin Panel"
+        panelName="Employee Panel"
         brand="SMARTHR-360"
-        subtitle="Department Administration"
+        subtitle="Organization Work Dashboard"
         menuItems={menuItems}
     />
 );

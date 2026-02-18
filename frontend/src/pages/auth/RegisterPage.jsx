@@ -9,6 +9,8 @@ import { Label } from '../../components/ui/Label';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
+const REGISTER_VERIFICATION_ID_KEY = 'register_verification_id';
+
 const stepOneSchema = z.object({
     firstName: z.string().min(2, 'First name is required'),
     middleName: z.string().optional(),
@@ -45,6 +47,7 @@ const RegisterPage = () => {
     const {
         register,
         watch,
+        getValues,
         handleSubmit,
         formState: { errors },
     } = useForm({
@@ -68,14 +71,21 @@ const RegisterPage = () => {
     useEffect(() => {
         // Prevent stale session from forcing panel redirect while opening registration.
         logout();
+
+        const storedVerificationId = sessionStorage.getItem(REGISTER_VERIFICATION_ID_KEY);
+        if (storedVerificationId) {
+            setVerificationId(storedVerificationId);
+        }
     }, [logout]);
 
     const submitStepOne = async (formData) => {
         setIsLoading(true);
         setServerMessage('');
+        sessionStorage.removeItem(REGISTER_VERIFICATION_ID_KEY);
         try {
             const { data } = await api.post('/auth/register/start', formData);
             setVerificationId(data.verificationId);
+            sessionStorage.setItem(REGISTER_VERIFICATION_ID_KEY, data.verificationId);
             setDebugOtp(data.debugOtp || null);
             setServerMessage(data.message || 'OTP sent to email and mobile.');
             setStep(2);
@@ -93,16 +103,47 @@ const RegisterPage = () => {
     const verifyOtp = async () => {
         setIsLoading(true);
         setServerMessage('');
+        const currentVerificationId = verificationId || sessionStorage.getItem(REGISTER_VERIFICATION_ID_KEY) || '';
+
+        if (!currentVerificationId) {
+            setIsLoading(false);
+            setServerMessage('Verification session missing. Please restart registration.');
+            setStep(1);
+            return;
+        }
+
         try {
             const { data } = await api.post('/auth/register/verify', {
-                verificationId,
+                verificationId: currentVerificationId,
                 emailOtp,
                 mobileOtp,
             });
             setServerMessage(data.message || 'OTP verified');
             setStep(3);
         } catch (error) {
+            const message = error.response?.data?.message || 'OTP verification failed';
+            if (message.includes('Invalid verification session') || message.includes('OTP expired')) {
+                sessionStorage.removeItem(REGISTER_VERIFICATION_ID_KEY);
+                setStep(1);
+            }
             setServerMessage(error.response?.data?.message || 'OTP verification failed');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const resendOtp = async () => {
+        setIsLoading(true);
+        setServerMessage('');
+        try {
+            const formData = getValues();
+            const { data } = await api.post('/auth/register/start', formData);
+            setVerificationId(data.verificationId);
+            sessionStorage.setItem(REGISTER_VERIFICATION_ID_KEY, data.verificationId);
+            setDebugOtp(data.debugOtp || null);
+            setServerMessage(data.message || 'New OTP sent successfully');
+        } catch (error) {
+            setServerMessage(error.response?.data?.message || 'Failed to resend OTP');
         } finally {
             setIsLoading(false);
         }
@@ -111,16 +152,31 @@ const RegisterPage = () => {
     const completeRegistration = async () => {
         setIsLoading(true);
         setServerMessage('');
+        const currentVerificationId = verificationId || sessionStorage.getItem(REGISTER_VERIFICATION_ID_KEY) || '';
+
+        if (!currentVerificationId) {
+            setIsLoading(false);
+            setServerMessage('Verification session missing. Please restart registration.');
+            setStep(1);
+            return;
+        }
+
         try {
             const { data } = await api.post('/auth/register/complete', {
-                verificationId,
+                verificationId: currentVerificationId,
                 purpose,
                 preferredPlan: selectedPlan,
             });
             setServerMessage(data.message || 'Registration completed');
+            sessionStorage.removeItem(REGISTER_VERIFICATION_ID_KEY);
             setStep(4);
         } catch (error) {
-            setServerMessage(error.response?.data?.message || 'Could not complete registration');
+            const message = error.response?.data?.message || 'Could not complete registration';
+            if (message.includes('Invalid verification session') || message.includes('Session expired')) {
+                sessionStorage.removeItem(REGISTER_VERIFICATION_ID_KEY);
+                setStep(1);
+            }
+            setServerMessage(message);
         } finally {
             setIsLoading(false);
         }
@@ -266,6 +322,10 @@ const RegisterPage = () => {
                             Verify OTP
                         </Button>
                     </div>
+
+                    <Button variant="ghost" onClick={resendOtp} disabled={isLoading}>
+                        Resend OTP
+                    </Button>
                 </div>
             )}
 

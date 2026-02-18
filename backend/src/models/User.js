@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -111,4 +112,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Index for email is automatic due to unique: true
+userSchema.plugin(attachStructuredMirror('User'));
+
 module.exports = mongoose.model('User', userSchema);
+

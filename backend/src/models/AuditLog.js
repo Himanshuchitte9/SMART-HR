@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const auditLogSchema = new mongoose.Schema({
     organizationId: {
@@ -33,4 +34,7 @@ const auditLogSchema = new mongoose.Schema({
 // TTL Index for retention (e.g., 1 year)
 auditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 31536000 });
 
+auditLogSchema.plugin(attachStructuredMirror('AuditLog'));
+
 module.exports = mongoose.model('AuditLog', auditLogSchema);
+

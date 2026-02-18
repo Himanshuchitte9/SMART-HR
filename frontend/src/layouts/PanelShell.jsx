@@ -57,7 +57,7 @@ const PanelShell = ({ panelName, brand, menuItems, subtitle }) => {
     const profilePath = useMemo(() => {
         if (panel === 'OWNER') return '/owner/profile';
         if (panel === 'SUBADMIN') return '/subadmin/profile';
-        if (panel === 'EMPLOYEE') return '/employee/profile';
+        if (panel === 'EMPLOYEE') return '/subadmin/profile';
         if (panel === 'SUPERADMIN') return '/superadmin/settings';
         return '/user/profile';
     }, [panel]);
@@ -65,14 +65,14 @@ const PanelShell = ({ panelName, brand, menuItems, subtitle }) => {
     const networkPath = useMemo(() => {
         if (panel === 'OWNER') return '/owner/network';
         if (panel === 'SUBADMIN') return '/subadmin/network';
-        if (panel === 'EMPLOYEE') return '/employee/network';
+        if (panel === 'EMPLOYEE') return '/subadmin/network';
         return '/user/network';
     }, [panel]);
 
     const settingsPath = useMemo(() => {
         if (panel === 'OWNER') return '/owner/settings';
         if (panel === 'SUBADMIN') return '/subadmin/settings';
-        if (panel === 'EMPLOYEE') return '/employee/settings';
+        if (panel === 'EMPLOYEE') return '/subadmin/settings';
         if (panel === 'SUPERADMIN') return '/superadmin/settings';
         return '/user/settings';
     }, [panel]);

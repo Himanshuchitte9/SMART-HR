@@ -12,12 +12,12 @@ const DashboardHome = () => {
     const { user, panel, organization } = useAuthStore();
 
     const firstName = user?.profile?.firstName || 'User';
-    const activePanel = panel || (user?.isSuperAdmin ? 'SUPERADMIN' : organization ? 'EMPLOYEE' : 'USER');
+    const activePanel = panel || (user?.isSuperAdmin ? 'SUPERADMIN' : organization ? 'SUBADMIN' : 'USER');
 
     const stats = [
         { label: 'Open Tasks', value: '0', icon: CheckCircle2, color: 'from-blue-500 to-cyan-500' },
         { label: 'Unread Messages', value: '0', icon: MessageSquare, color: 'from-amber-500 to-orange-500' },
-        { label: 'Team Members', value: ['OWNER', 'SUBADMIN'].includes(activePanel) ? '0' : '-', icon: Users, color: 'from-pink-500 to-rose-500' },
+        { label: 'Team Members', value: ['OWNER'].includes(activePanel) ? '0' : '-', icon: Users, color: 'from-pink-500 to-rose-500' },
         { label: 'Employments', value: user?.employment?.status === 'ACTIVE' ? '1' : '0', icon: Briefcase, color: 'from-violet-500 to-purple-500' },
     ];
 

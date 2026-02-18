@@ -124,7 +124,7 @@ const SettingsPage = () => {
         : panel === 'SUPERADMIN'
             ? '/superadmin/help'
             : panel === 'EMPLOYEE'
-                ? '/employee/help'
+                ? '/subadmin/help'
                 : '/user/help';
 
     return (

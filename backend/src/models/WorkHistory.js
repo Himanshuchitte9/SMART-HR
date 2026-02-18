@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const workHistorySchema = new mongoose.Schema({
     userId: {
@@ -29,4 +30,7 @@ const workHistorySchema = new mongoose.Schema({
 
 workHistorySchema.index({ userId: 1, organizationId: 1, sourceEmploymentId: 1 }, { unique: true });
 
+workHistorySchema.plugin(attachStructuredMirror('WorkHistory'));
+
 module.exports = mongoose.model('WorkHistory', workHistorySchema);
+

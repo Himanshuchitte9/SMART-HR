@@ -11,6 +11,6 @@ router.use(requireTenant);
 
 router.post('/', uploadDocument);
 router.get('/me', getMyDocuments);
-router.get('/user/:userId', authorizeRoles('Owner', 'Admin', 'HR Manager'), getUserDocuments);
+router.get('/user/:userId', authorizeRoles('Owner'), getUserDocuments);
 
 module.exports = router;

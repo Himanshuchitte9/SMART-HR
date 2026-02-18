@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const employmentStateSchema = new mongoose.Schema({
     userId: {
@@ -15,6 +16,11 @@ const employmentStateSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Role',
         required: true,
+    },
+    reportsToEmploymentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'EmploymentState',
+        default: null,
     },
     status: {
         type: String,
@@ -41,4 +47,7 @@ const employmentStateSchema = new mongoose.Schema({
 // Or just one entry per org? Usually one effective role per org.
 employmentStateSchema.index({ userId: 1, organizationId: 1 }, { unique: true });
 
+employmentStateSchema.plugin(attachStructuredMirror('EmploymentState'));
+
 module.exports = mongoose.model('EmploymentState', employmentStateSchema);
+

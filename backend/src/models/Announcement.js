@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const announcementSchema = new mongoose.Schema({
     title: {
@@ -33,4 +34,7 @@ const announcementSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+announcementSchema.plugin(attachStructuredMirror('Announcement'));
+
 module.exports = mongoose.model('Announcement', announcementSchema);
+

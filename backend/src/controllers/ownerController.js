@@ -4,6 +4,39 @@ const Document = require('../models/Document');
 const Organization = require('../models/Organization');
 const User = require('../models/User');
 
+const VIEWABLE_STATUSES = ['ACTIVE', 'SUSPENDED', 'INVITED'];
+const normalizeId = (value) => (value ? String(value) : null);
+
+const buildDescendantSet = (allRows, rootEmploymentId) => {
+    const childrenMap = new Map();
+
+    allRows.forEach((row) => {
+        const parentId = normalizeId(row.reportsToEmploymentId);
+        if (!parentId) return;
+
+        if (!childrenMap.has(parentId)) {
+            childrenMap.set(parentId, []);
+        }
+        childrenMap.get(parentId).push(normalizeId(row._id));
+    });
+
+    const visited = new Set();
+    const queue = [...(childrenMap.get(normalizeId(rootEmploymentId)) || [])];
+
+    while (queue.length > 0) {
+        const currentId = queue.shift();
+        if (!currentId || visited.has(currentId)) continue;
+        visited.add(currentId);
+
+        const children = childrenMap.get(currentId) || [];
+        children.forEach((childId) => {
+            if (!visited.has(childId)) queue.push(childId);
+        });
+    }
+
+    return visited;
+};
+
 exports.getHiringDashboard = async (req, res) => {
     try {
         const organizationId = req.organizationId;
@@ -51,13 +84,29 @@ exports.getOrganizationChart = async (req, res) => {
     try {
         const rows = await EmploymentState.find({
             organizationId: req.organizationId,
-            status: { $in: ['ACTIVE', 'SUSPENDED'] },
+            status: { $in: VIEWABLE_STATUSES },
         })
             .populate('userId', 'profile email')
             .populate('roleId', 'name')
             .sort('department designation');
 
-        const nodes = rows.map((row) => ({
+        let scopedRows = rows;
+        if (req.userRole !== 'Owner') {
+            const viewerEmployment = await EmploymentState.findOne({
+                userId: req.user._id,
+                organizationId: req.organizationId,
+                status: { $in: VIEWABLE_STATUSES },
+            }).select('_id');
+
+            if (!viewerEmployment) {
+                return res.status(403).json({ message: 'Active employment not found for this organization' });
+            }
+
+            const descendantSet = buildDescendantSet(rows, viewerEmployment._id);
+            scopedRows = rows.filter((row) => descendantSet.has(normalizeId(row._id)));
+        }
+
+        const nodes = scopedRows.map((row) => ({
             employmentId: row._id,
             userId: row.userId?._id,
             name: `${row.userId?.profile?.firstName || ''} ${row.userId?.profile?.surname || row.userId?.profile?.lastName || ''}`.trim(),
@@ -142,6 +191,27 @@ exports.generateContract = async (req, res) => {
 
 exports.getEmployeeVault = async (req, res) => {
     try {
+        if (req.userRole !== 'Owner') {
+            const allRows = await EmploymentState.find({
+                organizationId: req.organizationId,
+                status: { $in: VIEWABLE_STATUSES },
+            }).select('_id userId reportsToEmploymentId');
+
+            const viewerEmployment = allRows.find((row) => normalizeId(row.userId) === normalizeId(req.user._id));
+            if (!viewerEmployment) {
+                return res.status(403).json({ message: 'Active employment not found for this organization' });
+            }
+
+            const descendantSet = buildDescendantSet(allRows, viewerEmployment._id);
+            const canViewTarget = allRows.some((row) =>
+                normalizeId(row.userId) === normalizeId(req.params.userId) && descendantSet.has(normalizeId(row._id))
+            );
+
+            if (!canViewTarget) {
+                return res.status(403).json({ message: 'You can only access vault documents for your downline employees' });
+            }
+        }
+
         const docs = await Document.find({
             organizationId: req.organizationId,
             userId: req.params.userId,

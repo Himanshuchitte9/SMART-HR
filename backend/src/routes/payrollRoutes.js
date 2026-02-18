@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(protect);
 router.use(requireTenant);
 
-router.get('/', authorizeRoles('Owner', 'Admin'), getPayrollRecords);
-router.post('/run', authorizeRoles('Owner', 'Admin'), runPayroll);
+router.get('/', authorizeRoles('Owner'), getPayrollRecords);
+router.post('/run', authorizeRoles('Owner'), runPayroll);
 
 module.exports = router;

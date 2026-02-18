@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const applicationSchema = new mongoose.Schema({
     jobId: {
@@ -39,4 +40,7 @@ const applicationSchema = new mongoose.Schema({
     timestamps: true,
 });
 
+applicationSchema.plugin(attachStructuredMirror('Application'));
+
 module.exports = mongoose.model('Application', applicationSchema);
+

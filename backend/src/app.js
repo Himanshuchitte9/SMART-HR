@@ -49,6 +49,7 @@ if (config.env === 'development') {
 // Sync Postgres Models (Dev only)
 const PayrollRecord = require('./models/postgres/PayrollRecord');
 const LoginAudit = require('./models/postgres/LoginAudit');
+const StructuredEntity = require('./models/postgres/StructuredEntity');
 const { sequelize, mongoose } = require('./config/db');
 sequelize.sync({ alter: true }).then(() => console.log('✅ Postgres Synced')).catch(err => console.log('❌ PG Sync Error:', err));
 
@@ -108,3 +109,4 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+

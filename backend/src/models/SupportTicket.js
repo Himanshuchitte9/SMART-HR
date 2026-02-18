@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const supportTicketSchema = new mongoose.Schema({
     organizationId: {
@@ -44,4 +45,7 @@ const supportTicketSchema = new mongoose.Schema({
 
 supportTicketSchema.index({ organizationId: 1, status: 1 });
 
+supportTicketSchema.plugin(attachStructuredMirror('SupportTicket'));
+
 module.exports = mongoose.model('SupportTicket', supportTicketSchema);
+

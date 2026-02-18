@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const attachStructuredMirror = require('./plugins/attachStructuredMirror');
 
 const roleSchema = new mongoose.Schema({
     organizationId: {
@@ -25,4 +26,7 @@ const roleSchema = new mongoose.Schema({
 // Compound index to ensure role names are unique per org
 roleSchema.index({ organizationId: 1, name: 1 }, { unique: true });
 
+roleSchema.plugin(attachStructuredMirror('Role'));
+
 module.exports = mongoose.model('Role', roleSchema);
+

@@ -17,7 +17,7 @@ router.use(protect);
 router.use(requireTenant);
 
 router.get('/jobs', getJobs); // List jobs for org
-router.post('/jobs', authorizeRoles('Owner', 'Admin', 'HR Manager'), createJob);
-router.get('/jobs/:id/applications', authorizeRoles('Owner', 'Admin', 'HR Manager'), getApplications);
+router.post('/jobs', authorizeRoles('Owner'), createJob);
+router.get('/jobs/:id/applications', authorizeRoles('Owner'), getApplications);
 
 module.exports = router;
