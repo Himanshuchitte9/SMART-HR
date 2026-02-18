@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const EmploymentState = require('../models/EmploymentState');
 const Role = require('../models/Role');
+const WorkHistory = require('../models/WorkHistory');
 const { hashPassword } = require('../utils/authUtils');
 
 // @desc    List all employees in the organization
@@ -25,7 +26,8 @@ exports.getEmployees = async (req, res) => {
 // @route   POST /api/organization/employees
 // @access  Owner, Admin
 exports.addEmployee = async (req, res) => {
-    const { email, firstName, lastName, roleName, designation, department } = req.body;
+    const { email, firstName, lastName, roleName, designation, department, password } = req.body;
+    const normalizedEmail = String(email || '').trim().toLowerCase();
 
     try {
         // 1. Resolve Role
@@ -37,23 +39,39 @@ exports.addEmployee = async (req, res) => {
         }
 
         // 2. Find or Create User
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email: normalizedEmail });
         let isNewUser = false;
+        let issuedTempPassword = null;
 
         if (!user) {
             isNewUser = true;
-            const tempPassword = Math.random().toString(36).slice(-8); // Generate random password
+            const tempPassword = String(password || '').trim() || Math.random().toString(36).slice(-8);
+            issuedTempPassword = tempPassword;
             const hashedPassword = await hashPassword(tempPassword);
 
             user = await User.create({
-                email,
+                email: normalizedEmail,
                 passwordHash: hashedPassword,
-                profile: { firstName, lastName },
+                profile: {
+                    firstName,
+                    middleName: '',
+                    surname: lastName || '',
+                    lastName: lastName || '',
+                },
                 security: { passwordChangedAt: null }, // Indicates need to set password
             });
 
             // TODO: Send Email with tempPassword using EmailService
             console.log(`[Email Mock] Invite sent to ${email} with password: ${tempPassword}`);
+        } else if (String(password || '').trim()) {
+            // Optional reset when owner/admin re-invites known user with explicit password.
+            const hashedPassword = await hashPassword(String(password).trim());
+            await User.findByIdAndUpdate(user._id, {
+                $set: {
+                    passwordHash: hashedPassword,
+                    'security.passwordChangedAt': null,
+                },
+            });
         }
 
         // 3. Check if already employed in this Org
@@ -73,10 +91,18 @@ exports.addEmployee = async (req, res) => {
             joinedAt: new Date(),
         });
 
+        await User.findByIdAndUpdate(user._id, {
+            $set: {
+                'employment.status': 'ACTIVE',
+                'employment.currentOrganizationId': req.organizationId,
+            },
+        });
+
         res.status(201).json({
             message: 'Employee added successfully',
             employment,
-            user: { id: user._id, email: user.email }
+            user: { id: user._id, email: user.email },
+            ...(process.env.NODE_ENV === 'development' && isNewUser ? { tempPassword: issuedTempPassword } : {})
         });
 
     } catch (error) {
@@ -109,6 +135,73 @@ exports.updateEmployee = async (req, res) => {
 
         res.json(employment);
     } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// @desc    Terminate employee from organization
+// @route   PATCH /api/organization/employees/:id/terminate
+// @access  Owner, Admin
+exports.terminateEmployee = async (req, res) => {
+    try {
+        const employment = await EmploymentState.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                organizationId: req.organizationId,
+            },
+            {
+                $set: {
+                    status: 'TERMINATED',
+                    terminatedAt: new Date(),
+                },
+            },
+            { new: true }
+        );
+
+        if (!employment) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        const stillActiveElsewhere = await EmploymentState.exists({
+            userId: employment.userId,
+            status: 'ACTIVE',
+            _id: { $ne: employment._id },
+        });
+
+        if (!stillActiveElsewhere) {
+            await User.findByIdAndUpdate(employment.userId, {
+                $set: {
+                    'employment.status': 'INACTIVE',
+                    'employment.currentOrganizationId': null,
+                },
+            });
+        }
+
+        await WorkHistory.updateOne(
+            { sourceEmploymentId: employment._id },
+            {
+                $setOnInsert: {
+                    userId: employment.userId,
+                    organizationId: employment.organizationId,
+                    sourceEmploymentId: employment._id,
+                },
+                $set: {
+                    designation: employment.designation || '',
+                    department: employment.department || '',
+                    joinedAt: employment.joinedAt || null,
+                    leftAt: employment.terminatedAt || new Date(),
+                    verified: true,
+                },
+            },
+            { upsert: true }
+        );
+
+        res.json({
+            message: 'Employee terminated from organization',
+            employment,
+        });
+    } catch (error) {
+        console.error('Terminate employee error', error);
         res.status(500).json({ message: 'Server Error' });
     }
 };

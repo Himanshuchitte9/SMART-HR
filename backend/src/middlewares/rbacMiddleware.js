@@ -3,8 +3,8 @@ const Role = require('../models/Role');
 // Check if user has one of the allowed roles (by name)
 const authorizeRoles = (...allowedRoles) => {
     return async (req, res, next) => {
-        if (!req.user || !req.attendance) { // req.attendance? No, req.userRole (from token)
-            // Wait, req.userRole was set in authMiddleware if token scoped.
+        if (!req.user) {
+            return res.status(401).json({ message: 'Authentication required' });
         }
 
         // SuperAdmin bypass

@@ -2,6 +2,7 @@
 const app = require('./src/app');
 const config = require('./src/config/env');
 const { connectMongo, connectPostgres } = require('./src/config/db');
+const { ensureSuperAdmin } = require('./src/services/bootstrapService');
 
 const startServer = async () => {
     try {

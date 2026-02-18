@@ -25,7 +25,9 @@ app.use(cors({
         const allowedOrigins = ['https://smarthr360.com'];
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || /^http:\/\/localhost:\d+$/.test(origin)) {
+        const isLocalhost = /^http:\/\/localhost:\d+$/.test(origin);
+        const isLanIpv4 = /^http:\/\/(?:192\.168|10\.\d+|172\.(?:1[6-9]|2\d|3[0-1]))\.\d+\.\d+:\d+$/.test(origin);
+        if (allowedOrigins.indexOf(origin) !== -1 || isLocalhost || isLanIpv4) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -46,7 +48,8 @@ if (config.env === 'development') {
 
 // Sync Postgres Models (Dev only)
 const PayrollRecord = require('./models/postgres/PayrollRecord');
-const { sequelize } = require('./config/db');
+const LoginAudit = require('./models/postgres/LoginAudit');
+const { sequelize, mongoose } = require('./config/db');
 sequelize.sync({ alter: true }).then(() => console.log('✅ Postgres Synced')).catch(err => console.log('❌ PG Sync Error:', err));
 
 // Routes
@@ -69,10 +72,30 @@ app.use('/api/documents', require('./routes/documentRoutes'));
 app.use('/api/network', require('./routes/networkRoutes'));
 app.use('/api/advanced', require('./routes/advancedRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/owner', require('./routes/ownerRoutes'));
+app.use('/api/support', require('./routes/supportRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
 
 // Health Check
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', uptime: process.uptime() });
+});
+
+app.get('/health/db', async (req, res) => {
+    const mongoConnected = mongoose.connection.readyState === 1;
+    let postgresConnected = false;
+    try {
+        await sequelize.authenticate();
+        postgresConnected = true;
+    } catch {
+        postgresConnected = false;
+    }
+
+    res.status(mongoConnected && postgresConnected ? 200 : 503).json({
+        mongo: mongoConnected ? 'UP' : 'DOWN',
+        postgres: postgresConnected ? 'UP' : 'DOWN',
+    });
 });
 
 // Error Handling Middleware

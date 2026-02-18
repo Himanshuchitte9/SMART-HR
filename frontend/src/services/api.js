@@ -1,8 +1,12 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
+const runtimeApiBase = typeof window !== 'undefined'
+    ? `http://${window.location.hostname}:5000/api`
+    : 'http://localhost:5000/api';
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseURL: import.meta.env.VITE_API_URL || runtimeApiBase,
     withCredentials: true, // For cookies (refresh token)
 });
 
@@ -41,7 +45,7 @@ api.interceptors.response.use(
                 // But /refresh needs the cookie.
 
                 const { data } = await axios.post(
-                    `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/refresh`,
+                    `${import.meta.env.VITE_API_URL || runtimeApiBase}/auth/refresh`,
                     {},
                     { withCredentials: true }
                 );

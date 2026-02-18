@@ -6,11 +6,11 @@ require('dotenv').config();
 
 const seedAdmin = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/SMARTHR-360/');
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/SMARTHR-360');
         console.log('Connected to MongoDB');
 
-        const email = 'admin@smarthr.com';
-        const password = 'password123';
+        const email = String(process.env.SUPER_ADMIN_EMAIL || 'admin@smarthr.com').trim().toLowerCase();
+        const password = process.env.SUPER_ADMIN_PASSWORD || 'password123';
         const hashedPassword = await hashPassword(password);
 
         let user = await User.findOne({ email });
@@ -23,7 +23,7 @@ const seedAdmin = async () => {
             user = await User.create({
                 email,
                 passwordHash: hashedPassword,
-                profile: { firstName: 'Super', lastName: 'Admin' },
+                profile: { firstName: 'Super', middleName: '', surname: 'Admin', lastName: 'Admin' },
                 isSuperAdmin: true,
                 security: { mfaEnabled: false }
             });

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getEmployees, addEmployee, updateEmployee } = require('../controllers/employeeController');
+const { getEmployees, addEmployee, updateEmployee, terminateEmployee } = require('../controllers/employeeController');
 const { protect } = require('../middlewares/authMiddleware');
 const { requireTenant } = require('../middlewares/tenantMiddleware');
 const { authorizeRoles } = require('../middlewares/rbacMiddleware');
@@ -14,5 +14,6 @@ router.use(requireTenant);
 router.get('/', authorizeRoles('Owner', 'Admin', 'HR Manager'), getEmployees);
 router.post('/', authorizeRoles('Owner', 'Admin', 'HR Manager'), addEmployee);
 router.patch('/:id', authorizeRoles('Owner', 'Admin'), updateEmployee);
+router.patch('/:id/terminate', authorizeRoles('Owner', 'Admin'), terminateEmployee);
 
 module.exports = router;

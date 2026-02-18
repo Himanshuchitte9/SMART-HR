@@ -1,5 +1,9 @@
 const express = require('express');
-const { getOrganizationError, updateOrganization } = require('../controllers/organizationController');
+const {
+    getOrganization,
+    updateOrganization,
+    updateOrganizationSubscription,
+} = require('../controllers/organizationController');
 const { protect } = require('../middlewares/authMiddleware');
 const { requireTenant } = require('../middlewares/tenantMiddleware');
 const { authorizeRoles } = require('../middlewares/rbacMiddleware');
@@ -10,7 +14,8 @@ const router = express.Router();
 router.use(protect);
 router.use(requireTenant);
 
-router.get('/', getOrganizationError);
+router.get('/', getOrganization);
 router.patch('/', authorizeRoles('Owner', 'Admin'), updateOrganization);
+router.patch('/subscription', authorizeRoles('Owner', 'Admin'), updateOrganizationSubscription);
 
 module.exports = router;

@@ -1,258 +1,303 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import './HomePage.css';
 import {
-    ArrowRight, CheckCircle, Shield, Globe, FileSearch, Building2, Star,
-    Server
+    ArrowRight,
+    Building2,
+    Globe,
+    FileSearch,
+    ShieldCheck,
+    Star,
+    Bot,
+    Layers,
+    CheckCircle2,
+    LifeBuoy,
+    BadgeHelp,
+    PhoneCall,
+    Moon,
+    Sun,
 } from 'lucide-react';
+import './HomePage.css';
+
+const plans = [
+    {
+        id: 'FREE',
+        title: 'Free',
+        price: '$0/mo',
+        subtitle: 'Launch with core workflows',
+        features: ['Up to 5 employees', 'Profile + network', 'Basic HR records'],
+    },
+    {
+        id: 'PRO',
+        title: 'Pro',
+        price: '$49/mo',
+        subtitle: 'Automation for growth teams',
+        features: ['Up to 50 employees', 'Payroll + recruitment', 'AI assistant + reports'],
+        featured: true,
+    },
+    {
+        id: 'ENTERPRISE',
+        title: 'Enterprise',
+        price: 'Custom',
+        subtitle: 'Governance at scale',
+        features: ['Unlimited seats', 'Advanced APIs', 'Dedicated support + security'],
+    },
+];
+
+const featureBlocks = [
+    {
+        title: 'SuperAdmin Panel (Platform Governance)',
+        points: [
+            'Company approval/rejection and suspension controls',
+            'Platform analytics: organizations, employees, sessions, API usage',
+            'Read-only deep company monitoring: owner, jobs, subscription, login history',
+            'Global audit log viewer, announcements, ticket monitoring, compliance checks',
+        ],
+    },
+    {
+        title: 'Owner/Admin Panel (Organization Control)',
+        points: [
+            'Company setup, employee onboarding, role and permission assignment',
+            'Smart hiring dashboard with candidate comparison and skill match insights',
+            'Auto org chart, performance heatmap, digital contract generation',
+            'Employee digital vault: salary slips, letters, records, growth docs',
+        ],
+    },
+    {
+        title: 'User + Employee Unified Identity',
+        points: [
+            'Permanent base identity with profile, posts, network and career history',
+            'Employee = User + organization access (attendance, leave, payroll view)',
+            'Role switching: job join/leave without losing profile identity',
+            'Paperless employment timeline and verified work history',
+        ],
+    },
+];
+
+const helpItems = [
+    {
+        title: 'Getting Started Help',
+        text: 'Registration, OTP verification, panel access and first setup instructions for Owner/Admin/User.',
+    },
+    {
+        title: 'Support Ticket Assistance',
+        text: 'Raise issue with category and priority. SuperAdmin monitoring and status updates supported.',
+    },
+    {
+        title: 'Security & Compliance Help',
+        text: 'KYC status, suspicious login review, account protection and role-based access guidance.',
+    },
+];
 
 const HomePage = () => {
+    const [theme, setTheme] = useState(localStorage.getItem('ui-theme') || 'light');
+
+    useEffect(() => {
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+        localStorage.setItem('ui-theme', theme);
+    }, [theme]);
+
     return (
         <div className="home-container">
-
-            {/* Hero Section */}
+            <div className="home-theme-float">
+                <button className="btn btn-outline home-theme-toggle" onClick={() => setTheme((t) => t === 'dark' ? 'light' : 'dark')}>
+                    {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </button>
+            </div>
             <section className="hero-section">
-                <div className="hero-bg-effects">
-                    <div className="hero-blob blob-left"></div>
-                    <div className="hero-blob blob-right"></div>
-                </div>
-
+                <div className="hero-noise"></div>
                 <div className="container">
-                    <div className="badge">
-                        <span className="badge-dot"></span>
-                        The Future of Professional Identity & HRMS
+                    <div className="home-theme-toggle-wrap">
+                    <button className="btn btn-outline home-theme-toggle" onClick={() => setTheme((t) => t === 'dark' ? 'light' : 'dark')}>
+                        {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                    </button>
+                </div>
+                <div className="hero-grid">
+                    <div className="hero-content">
+                        <span className="hero-badge">Identity + HRMS + Governance + AI</span>
+                        <h1 className="hero-title">
+                            SMARTHR-360
+                            <span>Where Hiring, Work Identity and Company Control connect in one flow.</span>
+                        </h1>
+                        <p className="hero-subtitle">
+                            A single platform for SuperAdmin governance, Owner operations, Employee productivity and User career identity.
+                            Paperless records, social graph and enterprise workflows stay synchronized.
+                        </p>
+                        <div className="hero-cta">
+                            <Link to="/auth/register?plan=FREE">
+                                <button className="btn btn-primary">Create Workspace <ArrowRight size={16} /></button>
+                            </Link>
+                            <Link to="/auth/login">
+                                <button className="btn btn-outline">Open Login</button>
+                            </Link>
+                        </div>
                     </div>
 
-                    <h1 className="hero-title">
-                        One Identity.<br />
-                        <span>Infinite Possibilities.</span>
-                    </h1>
+                    <div className="hero-stage">
+                        <div className="hero-stage-card hero-stage-main">
+                            <p className="hero-stage-kicker">Platform Pulse</p>
+                            <h3>Everything in one intelligent dashboard</h3>
+                            <div className="hero-stage-stats">
+                                <div><span>Organizations</span><strong>128</strong></div>
+                                <div><span>Active Users</span><strong>12.4k</strong></div>
+                                <div><span>API Uptime</span><strong>99.9%</strong></div>
+                            </div>
+                        </div>
+                        <div className="hero-stage-card hero-stage-float hero-stage-left">
+                            <p>Owner</p>
+                            <strong>Hiring + Payroll + Roles</strong>
+                        </div>
+                        <div className="hero-stage-card hero-stage-float hero-stage-right">
+                            <p>User Identity</p>
+                            <strong>Profile + Network + Career Timeline</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                    <p className="hero-subtitle">
-                        <strong>SMARTHR-360</strong> unifies <strong>HRMS</strong>, <strong>Professional Networking</strong>, and <strong>Paperless Vaults</strong> into a single ecosystem.
-                        Managing people, building careers, and ensuring trust—all in one place.
+        <section id="features" className="section section-soft">
+            <div className="container">
+                <div className="section-head">
+                    <h2>Key Features Overview</h2>
+                    <p>Every major block from your final blueprint is represented below.</p>
+                </div>
+                <div className="feature-grid">
+                    <FeatureCard icon={<Building2 size={22} />} title="HRMS Core" text="Attendance, leave, payroll, recruitment, organization settings and role security." />
+                    <FeatureCard icon={<Globe size={22} />} title="Professional Network" text="Profile, posts, connects, search, and identity continuity across organizations." />
+                    <FeatureCard icon={<FileSearch size={22} />} title="Paperless Employment" text="Digital vault, verified work history, centralized timeline and no manual paperwork." />
+                    <FeatureCard icon={<ShieldCheck size={22} />} title="Platform Governance" text="SuperAdmin analytics, compliance monitor, global logs, announcements and support." />
+                    <FeatureCard icon={<Star size={22} />} title="Reputation Engine" text="Trust score based on skill verification, duration, completeness and activity signals." />
+                    <FeatureCard icon={<Bot size={22} />} title="AI Engine" text="AI chat and hiring workflows for faster decisions and better operational productivity." />
+                </div>
+            </div>
+        </section>
+
+        <section className="section">
+            <div className="container split">
+                <div>
+                    <h2>Reputation & Identity Model</h2>
+                    <p>
+                        User identity remains permanent. Employee access can be attached/removed by employment state,
+                        while career profile, posts and history remain secure.
                     </p>
-
-                    <div className="flex justify-center gap-6">
-                        <Link to="/auth/register">
-                            <button className="btn btn-primary">
-                                Get Started <ArrowRight size={20} style={{ marginLeft: '10px' }} />
-                            </button>
-                        </Link>
-                        <Link to="/auth/login">
-                            <button className="btn btn-outline">
-                                Login to Dashboard
-                            </button>
-                        </Link>
-                    </div>
+                    <ul className="check-list">
+                        {[
+                            'User: permanent professional identity',
+                            'Employee: user + organization permissions',
+                            'Smart role switching with employment status mapping',
+                            'Reputation score maintained for both user and employee state',
+                        ].map((item) => (
+                            <li key={item}><CheckCircle2 size={16} /> {item}</li>
+                        ))}
+                    </ul>
                 </div>
-            </section>
-
-            {/* Grid Section */}
-            <section className="grid-section">
-                <div className="container text-center">
-                    <h2 className="section-title" style={{ fontSize: '2.5rem' }}>Why SMARTHR-360?</h2>
-                    <p style={{ color: '#a1a1aa', marginBottom: '3rem' }}>
-                        Fragmented tools create chaos. We bring everything together.
-                    </p>
-
-                    <div className="grid-cols-3">
-                        <div className="feature-card">
-                            <div className="card-icon"><Building2 /></div>
-                            <h3 className="card-title">SaaS HRMS</h3>
-                            <p className="card-desc">Complete organization management: Payroll, Recruitment (ATS), Attendance, and Role-based access control.</p>
-                        </div>
-                        <div className="feature-card">
-                            <div className="card-icon" style={{ color: '#22d3ee' }}><Globe /></div>
-                            <h3 className="card-title">Professional Network</h3>
-                            <p className="card-desc">A LinkedIn-style ecosystem where your work history is verified. Connect, post, and build your reputation.</p>
-                        </div>
-                        <div className="feature-card">
-                            <div className="card-icon" style={{ color: '#e879f9' }}><FileSearch /></div>
-                            <h3 className="card-title">Paperless Vault</h3>
-                            <p className="card-desc">Digitally signed contracts, salary slips, and experience letters stored forever in your personal vault.</p>
-                        </div>
+                <div className="score-card">
+                    <div className="score-top">
+                        <Star size={18} />
+                        <span>Reputation Engine</span>
                     </div>
+                    <p className="score-value">Skill + Work + Activity</p>
+                    <p className="score-note">Trust is measurable and identity remains portable.</p>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            {/* Governance Section */}
-            <section className="governance-section">
-                <div className="container">
-                    <div className="two-col">
-                        <div className="col-half">
-                            <div className="section-label">
-                                <Shield size={16} style={{ marginRight: '8px' }} /> Platform Governance
-                            </div>
-                            <h2 className="section-title">
-                                Enterprise-Grade Control <br />
-                                <span style={{ color: '#71717a' }}>for Modern Organizations.</span>
-                            </h2>
-                            <p style={{ color: '#a1a1aa', fontSize: '1.125rem', marginBottom: '2rem' }}>
-                                Our SuperAdmin panel ensures compliance, security, and smooth operations across thousands of organizations.
-                            </p>
-                            <div className="stat-grid">
-                                <div className="stat-box">
-                                    <Server size={24} color="#4ade80" style={{ marginBottom: '1rem' }} />
-                                    <h4 style={{ fontWeight: 'bold' }}>System Health</h4>
-                                    <p style={{ fontSize: '0.875rem', color: '#71717a' }}>Real-time monitoring of API & Database.</p>
-                                </div>
-                                <div className="stat-box">
-                                    <Shield size={24} color="#60a5fa" style={{ marginBottom: '1rem' }} />
-                                    <h4 style={{ fontWeight: 'bold' }}>Compliance</h4>
-                                    <p style={{ fontSize: '0.875rem', color: '#71717a' }}>KYC verification and automated audit logs.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-half">
-                            {/* Mock Dashboard UI via CSS */}
-                            <div style={{ background: '#18181b', padding: '2rem', borderRadius: '1rem', border: '1px solid #27272a' }}>
-                                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
-                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ef4444' }}></div>
-                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#eab308' }}></div>
-                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#22c55e' }}></div>
-                                </div>
-                                <div style={{ height: '200px', background: 'rgba(139, 92, 246, 0.1)', borderRadius: '0.5rem', border: '1px dashed #3f3f46', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#71717a' }}>
-                                    Analytics Dashboard View
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <section className="section section-soft">
+            <div className="container">
+                <div className="section-head">
+                    <h2>All Features Explained</h2>
+                    <p>Detailed product modules as per your final structure.</p>
                 </div>
-            </section>
-
-            {/* Reputation Section */}
-            <section className="reputation-section">
-                <div className="container">
-                    <div className="two-col" style={{ flexDirection: 'row-reverse' }}>
-                        <div className="col-half">
-                            <div className="section-label" style={{ color: '#facc15', borderColor: 'rgba(250, 204, 21, 0.3)', background: 'rgba(250, 204, 21, 0.1)' }}>
-                                <Star size={16} fill="#facc15" style={{ marginRight: '8px' }} /> Reputation Engine
-                            </div>
-                            <h2 className="section-title">Trust is the New Currency.</h2>
-                            <p style={{ color: '#a1a1aa', fontSize: '1.125rem', marginBottom: '2rem' }}>
-                                Your <strong>SMARTHR-360 Score</strong> is verified proof of your career.
-                                Based on Skill Validation, Work Duration, and Peer Reviews.
-                            </p>
-                            <ul style={{ listStyle: 'none', padding: 0 }}>
-                                {['Verified Employment History', 'Skill Validation by Peers', 'Platform Activity Score', 'Endorsements from Managers'].map((item, i) => (
-                                    <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', color: '#d4d4d8' }}>
-                                        <CheckCircle size={20} color="#facc15" />
-                                        {item}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                        <div className="col-half">
-                            <div className="reputation-card">
-                                <div className="profile-header">
-                                    <div className="avatar">
-                                        <div className="avatar-inner">JD</div>
-                                    </div>
-                                    <div>
-                                        <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>John Doe</h3>
-                                        <p style={{ color: '#a1a1aa' }}>Senior Software Engineer</p>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-                                            <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'rgba(250, 204, 21, 0.2)', color: '#facc15', fontSize: '12px', fontWeight: 'bold' }}>TOP RATED</span>
-                                            <span style={{ color: '#facc15' }}>★★★★★</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                    <span style={{ color: '#a1a1aa' }}>Reputation Score</span>
-                                    <span style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>850<span style={{ fontSize: '1rem', color: '#52525b' }}>/1000</span></span>
-                                </div>
-                                <div className="score-bar">
-                                    <div className="score-fill"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Pricing Section */}
-            <section className="pricing-section">
-                <div className="container">
-                    <div className="text-center" style={{ marginBottom: '4rem' }}>
-                        <h2 className="section-title">Transparent Pricing</h2>
-                        <p style={{ color: '#a1a1aa' }}>Start free, upgrade as you grow.</p>
-                    </div>
-
-                    <div className="grid-cols-3">
-                        <PricingCard
-                            title="Free Plan"
-                            price="$0"
-                            features={['Up to 5 Employees', 'Basic Profiles', 'Manual Payroll', 'Community Access']}
-                        />
-                        <PricingCard
-                            title="Pro Plan"
-                            price="$49"
-                            featured
-                            features={['Up to 50 Employees', 'Automated Payroll', 'AI Recruitment (Basic)', 'Verified Badges', 'Priority Support']}
-                        />
-                        <PricingCard
-                            title="Enterprise"
-                            price="Custom"
-                            features={['Unlimited Employees', 'Full AI Suite', 'Dedicated Account Manager', 'Custom Contracts', 'API Access']}
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* Footer */}
-            <footer>
-                <div className="container">
-                    <div className="footer-grid">
-                        <div className="footer-col" style={{ gridColumn: 'span 2' }}>
-                            <h3>SMARTHR-360</h3>
-                            <p>The ultimate platform for modern work. Managing people, building careers, and ensuring trust in one place.</p>
-                        </div>
-                        <div className="footer-col">
-                            <h4>Platform</h4>
+                <div className="detail-grid">
+                    {featureBlocks.map((block) => (
+                        <article key={block.title} className="detail-card">
+                            <h3>{block.title}</h3>
                             <ul>
-                                <li>Features</li>
-                                <li>Pricing</li>
-                                <li>Security</li>
+                                {block.points.map((point) => <li key={point}>{point}</li>)}
                             </ul>
-                        </div>
-                        <div className="footer-col">
-                            <h4>Company</h4>
-                            <ul>
-                                <li>About Us</li>
-                                <li>Careers</li>
-                                <li>Contact</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="text-center" style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid #27272a' }}>
-                        &copy; 2026 SMARTHR-360. All rights reserved. Secured by AES-256 Encryption.
-                    </div>
+                        </article>
+                    ))}
                 </div>
-            </footer>
+            </div>
+        </section>
+
+        <section id="pricing" className="section section-soft">
+            <div className="container">
+                <div className="section-head">
+                    <h2>Subscription Plans</h2>
+                    <p>Choose plan and activate directly from registration.</p>
+                </div>
+                <div className="pricing-grid">
+                    {plans.map((plan) => (
+                        <div key={plan.id} className={`pricing-card ${plan.featured ? 'featured' : ''}`}>
+                            <h3>{plan.title}</h3>
+                            <p className="price">{plan.price}</p>
+                            <p className="subtitle">{plan.subtitle}</p>
+                            <ul>
+                                {plan.features.map((feature) => <li key={feature}>{feature}</li>)}
+                            </ul>
+                            <Link to={`/auth/register?plan=${plan.id}`}>
+                                <button className="btn btn-block">{plan.featured ? 'Activate Pro' : 'Activate Plan'}</button>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        <section id="about" className="section">
+            <div className="container about-card">
+                <h2>About SMARTHR-360</h2>
+                <p>
+                    SMARTHR-360 is designed as a multi-tenant workforce platform with three separated control layers:
+                    SuperAdmin (platform), Owner/Admin (organization), and User (identity + employee experience).
+                    Security includes JWT + refresh token, OTP verification, RBAC, activity logs, and protected routing.
+                </p>
+                <div className="about-cta">
+                    <Link to="/auth/register?plan=FREE"><button className="btn btn-primary">Create Workspace</button></Link>
+                    <Link to="/auth/login"><button className="btn btn-outline">Open Login</button></Link>
+                </div>
+            </div>
+        </section>
+
+        <section className="section section-soft">
+            <div className="container">
+                <div className="section-head">
+                    <h2>Help & Support</h2>
+                    <p>Support-oriented modules and guidance blocks included.</p>
+                </div>
+                <div className="help-grid">
+                    <HelpCard icon={<BadgeHelp size={18} />} title={helpItems[0].title} text={helpItems[0].text} />
+                    <HelpCard icon={<LifeBuoy size={18} />} title={helpItems[1].title} text={helpItems[1].text} />
+                    <HelpCard icon={<PhoneCall size={18} />} title={helpItems[2].title} text={helpItems[2].text} />
+                </div>
+                <div className="help-cta">
+                    <Link to="/auth/login"><button className="btn btn-outline">Open Help via Login</button></Link>
+                    <Link to="/auth/register?plan=FREE"><button className="btn btn-primary">Start with Guided Setup</button></Link>
+                </div>
+            </div>
+        </section>
         </div>
     );
 };
 
-const PricingCard = ({ title, price, features, featured }) => (
-    <div className={`pricing-card ${featured ? 'featured' : ''}`}>
-        {featured && <div style={{ alignSelf: 'flex-end', background: '#8b5cf6', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', marginBottom: '1rem' }}>POPULAR</div>}
-        <h3 style={{ fontSize: '1.25rem', color: '#a1a1aa' }}>{title}</h3>
-        <div className="price">{price}<span>/mo</span></div>
-        <ul className="check-list">
-            {features.map((f, i) => (
-                <li key={i}>
-                    <CheckCircle size={16} color={featured ? "#a78bfa" : "#52525b"} />
-                    {f}
-                </li>
-            ))}
-        </ul>
-        <Link to="/auth/register" style={{ width: '100%' }}>
-            <button className="btn-full">
-                {featured ? 'Start Free Trial' : 'Get Started'}
-            </button>
-        </Link>
-    </div>
+const FeatureCard = ({ icon, title, text }) => (
+    <article className="feature-card">
+        <div className="icon-wrap">{icon}</div>
+        <h3>{title}</h3>
+        <p>{text}</p>
+    </article>
+);
+
+const HelpCard = ({ icon, title, text }) => (
+    <article className="help-card">
+        <div className="help-icon">{icon}</div>
+        <h3>{title}</h3>
+        <p>{text}</p>
+    </article>
 );
 
 export default HomePage;

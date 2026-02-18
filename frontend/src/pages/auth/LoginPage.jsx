@@ -1,128 +1,178 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod'; // Ensure zod is installed or use from 'zod'
+import * as z from 'zod';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Label } from '../../components/ui/Label';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
-const loginSchema = z.object({
-    email: z.string().email('Invalid email address'),
+const loginStepOneSchema = z.object({
+    identifier: z.string().min(3, 'Enter email or mobile number'),
     password: z.string().min(1, 'Password is required'),
 });
 
 const LoginPage = () => {
-    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const setAuth = useAuthStore((state) => state.login);
+    const logout = useAuthStore((state) => state.logout);
+    const [step, setStep] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
+    const [serverMessage, setServerMessage] = useState('');
+    const [loginSessionId, setLoginSessionId] = useState('');
+    const [emailOtp, setEmailOtp] = useState('');
+    const [debugOtp, setDebugOtp] = useState(null);
+    const [redirectInfo, setRedirectInfo] = useState(null);
+
+    useEffect(() => {
+        // Ensure stale persisted session does not force wrong panel behavior on login screen.
+        logout();
+    }, [logout]);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm({
-        resolver: zodResolver(loginSchema),
+        resolver: zodResolver(loginStepOneSchema),
+        defaultValues: {
+            identifier: '',
+            password: '',
+        },
     });
 
-    const onSubmit = async (data) => {
+    const startLogin = async (formData) => {
         setIsLoading(true);
+        setServerMessage('');
         try {
-            const response = await api.post('/auth/login', data);
-            const { accessToken, user } = response.data;
-
-            setAuth(user, accessToken);
-
-            // Redirect based on role
-            if (user.isSuperAdmin) {
-                navigate('/admin');
-            } else {
-                // Check if user has organizations
-                // For now, default to dashboard or profile
-                navigate('/dashboard');
-            }
+            const { data } = await api.post('/auth/login/start', formData);
+            setLoginSessionId(data.loginSessionId);
+            setDebugOtp(data.debugOtp || null);
+            setServerMessage(data.message || 'Email OTP sent');
+            setStep(2);
         } catch (error) {
-            console.error(error);
-            // Handle error (show toast?)
-            alert(error.response?.data?.message || 'Login failed');
+            if (error.response?.status === 404) {
+                setServerMessage('Login API not found. Backend restart required (run backend again).');
+            } else {
+                setServerMessage(error.response?.data?.message || 'Login failed');
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const verifyOtp = async () => {
+        setIsLoading(true);
+        setServerMessage('');
+        try {
+            const { data } = await api.post('/auth/login/verify', {
+                loginSessionId,
+                emailOtp,
+            });
+
+            setAuth(data.user, data.accessToken, data.organization || null, data.panel || null);
+            setRedirectInfo({ panel: data.panel, path: data.redirectPath || '/dashboard' });
+            setStep(3);
+
+            setTimeout(() => {
+                navigate(data.redirectPath || '/dashboard');
+            }, 800);
+        } catch (error) {
+            setServerMessage(error.response?.data?.message || 'OTP verification failed');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <>
-            <div className="flex flex-col space-y-2 text-center">
-                <h1 className="text-2xl font-semibold tracking-tight">
-                    Login to your account
-                </h1>
+        <div className="space-y-5">
+            <div className="space-y-1 text-center">
+                <p className="text-xs font-semibold tracking-wide text-primary">Step {step} of 3</p>
+                <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
                 <p className="text-sm text-muted-foreground">
-                    Enter your email below to login to your account
+                    Secure sign-in with OTP verification.
                 </p>
-            </div>
-            <div className="grid gap-6">
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="grid gap-2">
-                        <div className="grid gap-1">
-                            <Label className="sr-only" htmlFor="email">
-                                Email
-                            </Label>
-                            <Input
-                                id="email"
-                                placeholder="name@example.com"
-                                type="email"
-                                autoCapitalize="none"
-                                autoComplete="email"
-                                autoCorrect="off"
-                                disabled={isLoading}
-                                {...register('email')}
-                            />
-                            {errors.email && (
-                                <p className="text-sm text-red-500">{errors.email.message}</p>
-                            )}
-                        </div>
-                        <div className="grid gap-1">
-                            <Label className="sr-only" htmlFor="password">
-                                Password
-                            </Label>
-                            <Input
-                                id="password"
-                                placeholder="Password"
-                                type="password"
-                                autoCapitalize="none"
-                                autoComplete="current-password"
-                                disabled={isLoading}
-                                {...register('password')}
-                            />
-                            {errors.password && (
-                                <p className="text-sm text-red-500">{errors.password.message}</p>
-                            )}
-                        </div>
-                        <Button disabled={isLoading} isLoading={isLoading}>
-                            Sign In with Email
-                        </Button>
-                    </div>
-                </form>
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">
-                            Or continue with
-                        </span>
-                    </div>
-                </div>
-                <div className="text-center text-sm">
-                    Don&apos;t have an account?{' '}
-                    <Link to="/auth/register" className="underline hover:text-primary">
-                        Sign up
+                <div className="pt-1">
+                    <Link to="/">
+                        <Button variant="outline" size="sm">Back to Home</Button>
                     </Link>
                 </div>
             </div>
-        </>
+
+            <div className="h-2 w-full rounded-full bg-muted">
+                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(step / 3) * 100}%` }} />
+            </div>
+
+            {step === 1 && (
+                <form className="grid gap-3" onSubmit={handleSubmit(startLogin)}>
+                    <div className="grid gap-1">
+                        <Label htmlFor="identifier">Email / Mobile No.</Label>
+                        <Input id="identifier" placeholder="Email or mobile" {...register('identifier')} />
+                        {errors.identifier && <p className="text-xs text-red-500">{errors.identifier.message}</p>}
+                    </div>
+                    <div className="grid gap-1">
+                        <Label htmlFor="password">Password</Label>
+                        <Input id="password" type="password" placeholder="Password" {...register('password')} />
+                        {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
+                    </div>
+                    <Button type="submit" className="w-full" isLoading={isLoading} disabled={isLoading}>
+                        Continue
+                    </Button>
+                </form>
+            )}
+
+            {step === 2 && (
+                <div className="grid gap-3">
+                    <div className="grid gap-1">
+                        <Label htmlFor="emailOtp">Email OTP (6 digits)</Label>
+                        <Input
+                            id="emailOtp"
+                            value={emailOtp}
+                            maxLength={6}
+                            onChange={(event) => setEmailOtp(event.target.value.replace(/\D/g, ''))}
+                            placeholder="Enter OTP"
+                        />
+                    </div>
+
+                    {debugOtp && (
+                        <p className="rounded-md border border-blue-500/30 bg-blue-500/10 p-2 text-xs text-blue-200">
+                            Dev OTP: {debugOtp.emailOtp}
+                        </p>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2">
+                        <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
+                        <Button onClick={verifyOtp} isLoading={isLoading} disabled={isLoading || emailOtp.length !== 6}>
+                            Verify OTP
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {step === 3 && (
+                <div className="space-y-3 text-center">
+                    <p className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-200">
+                        Login successful
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                        Redirecting to {redirectInfo?.panel?.toLowerCase() || 'dashboard'} panel...
+                    </p>
+                </div>
+            )}
+
+            {serverMessage && (
+                <p className="text-center text-xs text-muted-foreground">{serverMessage}</p>
+            )}
+
+            <p className="text-center text-sm">
+                Don&apos;t have an account?{' '}
+                <Link to="/auth/register" className="underline hover:text-primary">
+                    Register
+                </Link>
+            </p>
+        </div>
     );
 };
 

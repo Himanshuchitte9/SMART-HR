@@ -7,23 +7,26 @@ export const useAuthStore = create(
             token: null,
             user: null,
             organization: null, // Current active org context
+            panel: null,
             isAuthenticated: false,
 
             setToken: (token) => set({ token, isAuthenticated: !!token }),
 
-            login: (userData, token, organization = null) => set({
+            login: (userData, token, organization = null, panel = null) => set({
                 user: userData,
                 token,
                 organization,
+                panel,
                 isAuthenticated: true
             }),
 
             logout: () => {
-                set({ token: null, user: null, organization: null, isAuthenticated: false });
+                set({ token: null, user: null, organization: null, panel: null, isAuthenticated: false });
                 // Optional: Call logout API to clear cookie
             },
 
             setOrganization: (org) => set({ organization: org }),
+            setPanel: (panel) => set({ panel }),
 
             updateUser: (updates) => set((state) => ({ user: { ...state.user, ...updates } })),
         }),
@@ -33,6 +36,7 @@ export const useAuthStore = create(
                 token: state.token,
                 user: state.user,
                 organization: state.organization,
+                panel: state.panel,
                 isAuthenticated: state.isAuthenticated
             }),
         }
