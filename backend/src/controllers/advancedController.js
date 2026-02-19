@@ -6,7 +6,11 @@ const analyticsService = require('../services/analyticsService');
 exports.chat = async (req, res) => {
     try {
         const { message } = req.body;
-        const response = await aiService.chat(message, { user: req.user });
+        const response = await aiService.chat(message, {
+            user: req.user,
+            role: req.userRole || null,
+            organizationId: req.organizationId || null,
+        });
         res.json(response);
     } catch (error) {
         res.status(500).json({ message: 'AI Service Error' });

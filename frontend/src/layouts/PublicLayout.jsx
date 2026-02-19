@@ -7,11 +7,11 @@ const PublicLayout = () => {
         <div className="app-shell flex min-h-screen flex-col">
             <header className="site-header glass">
                 <div className="container site-header-inner">
-                    <div className="flex items-center gap-7">
+                    <div className="flex items-center gap-3 sm:gap-7">
                         <Link to="/" className="site-brand">
                             SMARTHR-360
                         </Link>
-                        <nav className="site-links">
+                        <nav className="site-links hidden md:flex">
                             <a href="#features" className="site-link">Features</a>
                             <a href="#pricing" className="site-link">Pricing</a>
                             <a href="#about" className="site-link">About</a>
@@ -25,7 +25,7 @@ const PublicLayout = () => {
                                 </Button>
                             </Link>
                             <Link to="/auth/register">
-                                <Button size="sm">Get Started</Button>
+                                <Button size="sm" className="px-3 sm:px-4">Get Started</Button>
                             </Link>
                         </nav>
                     </div>

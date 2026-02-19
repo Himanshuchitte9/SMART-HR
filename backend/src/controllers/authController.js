@@ -6,6 +6,7 @@ const Role = require('../models/Role');
 const AuditLog = require('../models/AuditLog');
 const OtpSession = require('../models/OtpSession');
 const LoginAudit = require('../models/postgres/LoginAudit');
+const notificationService = require('../services/notificationService');
 const { hashPassword, comparePassword, signAccessToken, signRefreshToken, verifyRefreshToken } = require('../utils/authUtils');
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000;
@@ -133,6 +134,20 @@ const issueLoginTokens = async ({ user, organizationId = null, role = null }) =>
     const accessToken = signAccessToken(payload);
     const refreshToken = signRefreshToken({ id: user._id, version: user.security.refreshTokenVersion });
     return { accessToken, refreshToken };
+};
+
+const sendLoginNotification = async ({ userId, organizationId, panel }) => {
+    try {
+        await notificationService.send(userId, {
+            organizationId,
+            type: 'INFO',
+            title: 'Welcome back',
+            message: `You are logged in to ${panel} panel.`,
+            actionLink: '/settings',
+        });
+    } catch (error) {
+        console.error('sendLoginNotification error', error?.message || error);
+    }
 };
 
 exports.registerStart = async (req, res) => {
@@ -412,6 +427,12 @@ exports.loginVerify = async (req, res) => {
             });
         }
 
+        await sendLoginNotification({
+            userId: user._id,
+            organizationId: activeEmployment?.organizationId?._id || null,
+            panel: panelDecision.panel,
+        });
+
         await AuditLog.create({
             organizationId: activeEmployment?.organizationId?._id || undefined,
             userId: user._id,
@@ -538,6 +559,12 @@ exports.login = async (req, res) => {
         const { accessToken, refreshToken } = await issueLoginTokens({ user });
         setRefreshCookie(res, refreshToken);
 
+        await sendLoginNotification({
+            userId: user._id,
+            organizationId: user.employment?.currentOrganizationId || null,
+            panel: user.isSuperAdmin ? 'SUPERADMIN' : 'USER',
+        });
+
         res.json({
             accessToken,
             user: {
@@ -642,6 +669,12 @@ exports.switchOrganization = async (req, res) => {
             details: { roleName },
             ipAddress: req.ip,
             userAgent: req.headers['user-agent'],
+        });
+
+        await sendLoginNotification({
+            userId: req.user.id,
+            organizationId,
+            panel: roleName || 'USER',
         });
 
         const accessToken = signAccessToken({

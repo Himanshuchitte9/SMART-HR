@@ -5,8 +5,14 @@ const runtimeApiBase = typeof window !== 'undefined'
     ? `http://${window.location.hostname}:5000/api`
     : 'http://localhost:5000/api';
 
+const envApiBase = import.meta.env.VITE_API_URL?.trim();
+const browserHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const isRemoteBrowserHost = !['localhost', '127.0.0.1', '::1'].includes(browserHost);
+const isLocalhostEnvApi = /^https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?/i.test(envApiBase || '');
+const apiBaseUrl = (isRemoteBrowserHost && isLocalhostEnvApi) ? runtimeApiBase : (envApiBase || runtimeApiBase);
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || runtimeApiBase,
+    baseURL: apiBaseUrl,
     withCredentials: true, // For cookies (refresh token)
 });
 
@@ -45,7 +51,7 @@ api.interceptors.response.use(
                 // But /refresh needs the cookie.
 
                 const { data } = await axios.post(
-                    `${import.meta.env.VITE_API_URL || runtimeApiBase}/auth/refresh`,
+                    `${apiBaseUrl}/auth/refresh`,
                     {},
                     { withCredentials: true }
                 );

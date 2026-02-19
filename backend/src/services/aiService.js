@@ -1,5 +1,4 @@
 // Mock AI Service until external API (OpenAI/Gemini) keys are provided
-const { randomUUID } = require('crypto');
 
 class AIService {
     constructor() {
@@ -35,19 +34,77 @@ class AIService {
     }
 
     async chat(message, context = {}) {
-        // Context could include user role, current page, etc.
-        const responses = [
-            "I can help you with that HR policy.",
-            "To request time off, go to the Employee Dashboard.",
-            "Your current leave balance is 12 days.",
-            "Please contact your manager for approval."
-        ];
+        const text = String(message || '').trim().toLowerCase();
+        const role = String(context.role || '').toLowerCase();
+
+        if (!text) {
+            return {
+                reply: 'Please type your question. I can help with leave, attendance, payroll, documents, and settings.',
+                suggestedActions: [
+                    { label: 'Help', action: '/help' },
+                    { label: 'Settings', action: '/settings' },
+                ],
+            };
+        }
+
+        if (text.includes('leave') || text.includes('time off') || text.includes('vacation')) {
+            return {
+                reply: 'Leave request ke liye leave page open karke dates aur reason submit karein. Manager approval ke baad status update ho jayega.',
+                suggestedActions: [
+                    { label: 'Open Leave', action: '/leaves' },
+                    { label: 'Attendance', action: '/attendance' },
+                ],
+            };
+        }
+
+        if (text.includes('payroll') || text.includes('salary') || text.includes('payslip')) {
+            return {
+                reply: 'Payroll section me aap payment records, status aur monthly summary dekh sakte hain.',
+                suggestedActions: [
+                    { label: 'Open Payroll', action: '/payroll' },
+                    { label: 'Settings', action: '/settings' },
+                ],
+            };
+        }
+
+        if (text.includes('recruit') || text.includes('hiring') || text.includes('candidate') || text.includes('resume')) {
+            return {
+                reply: 'Recruitment dashboard me jobs create karke candidates ke applications aur AI analysis dekh sakte hain.',
+                suggestedActions: [
+                    { label: 'Open Recruitment', action: '/recruitment' },
+                    { label: 'Help', action: '/help' },
+                ],
+            };
+        }
+
+        if (text.includes('document') || text.includes('policy')) {
+            return {
+                reply: 'Documents section me policies aur files manage kar sakte hain. Agar kuch missing ho to admin se share karein.',
+                suggestedActions: [
+                    { label: 'Open Documents', action: '/documents' },
+                    { label: 'Help', action: '/help' },
+                ],
+            };
+        }
+
+        if (role === 'owner' || role === 'admin') {
+            return {
+                reply: 'Owner/Admin actions ke liye organization, employees, roles, payroll aur recruitment modules available hain.',
+                suggestedActions: [
+                    { label: 'Organization', action: '/organization' },
+                    { label: 'Employees', action: '/employees' },
+                    { label: 'Roles', action: '/roles' },
+                ],
+            };
+        }
+
         return {
-            reply: responses[Math.floor(Math.random() * responses.length)],
+            reply: 'Main aapko dashboard features me guide kar sakta hoon. Specific task type karein: leave, attendance, payroll, documents, recruitment, settings.',
             suggestedActions: [
-                { label: "View Policies", action: "/documents" },
-                { label: "Contact HR", action: "/messages/hr" }
-            ]
+                { label: 'Help', action: '/help' },
+                { label: 'Chat', action: '/chat' },
+                { label: 'Settings', action: '/settings' },
+            ],
         };
     }
 }
